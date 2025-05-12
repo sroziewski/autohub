@@ -36,13 +36,7 @@ CREATE TABLE addresses (
                            (address_type = 'PERSONAL' AND company_name IS NULL)
                            ),
 
-                       -- Ensures only one default address per user
-                       CONSTRAINT uk_addresses_user_default UNIQUE (user_id, is_default),
-                       CONSTRAINT chk_addresses_default_only_one CHECK (
-                           NOT is_default OR
-                           (is_default AND (SELECT COUNT(*) FROM addresses a2
-                           WHERE a2.user_id = user_id AND a2.is_default = TRUE) = 1)
-                       )
+                       CONSTRAINT uk_addresses_user_default UNIQUE (user_id, is_default)
 );
 
 -- Index for faster lookups

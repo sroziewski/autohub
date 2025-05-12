@@ -1,8 +1,21 @@
+import java.io.FileInputStream
+import java.util.Properties
+
+val envProps = Properties()
+val envFile = rootProject.file(".env")
+if (envFile.exists()) {
+	envProps.load(FileInputStream(envFile))
+	println("Loaded .env file")
+} else {
+	println(".env file not found at ${envFile.absolutePath}")
+}
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.4.5"
 	id("io.spring.dependency-management") version "1.1.7"
 	id("org.flywaydb.flyway") version "9.16.0"
+	id("com.github.gmazzo.buildconfig") version "3.1.0"
 }
 
 group = "com.autohub.user-service"
@@ -49,4 +62,32 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+// Use properties from .env file for Flyway configuration
+flyway {
+	url = envProps.getProperty("DB_URL")
+	user = envProps.getProperty("DB_USERNAME")
+	password = envProps.getProperty("DB_PASSWORD")
+	baselineOnMigrate = true
+	locations = arrayOf("classpath:db/migration")
+}
+
+tasks.register("printEnvProps") {
+	doLast {
+		println("Values from .env file:")
+		println("DB_URL: ${envProps.getProperty("DB_URL") ?: "NOT FOUND"}")
+		println("DB_USERNAME: ${envProps.getProperty("DB_USERNAME") ?: "NOT FOUND"}")
+		println("DB_PASSWORD: ${envProps.getProperty("DB_PASSWORD") ?: "NOT FOUND"}")
+		println("DB_NAME: ${envProps.getProperty("DB_NAME") ?: "NOT FOUND"}")
+		println("DB_PORT: ${envProps.getProperty("DB_PORT") ?: "NOT FOUND"}")
+		println("JWT_SECRET_KEY: ${envProps.getProperty("JWT_SECRET_KEY") ?: "NOT FOUND"}")
+		println("JWT_VALIDITY: ${envProps.getProperty("JWT_VALIDITY") ?: "NOT FOUND"}")
+	}
+}
+
+tasks.register("printProjectRoot") {
+	doLast {
+		println("Project Root: ${rootProject.projectDir}")
+	}
 }
