@@ -1,0 +1,12 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: "AutoHub User Service"
+  datasource:
+    url: jdbc:postgresql://localhost:3306/autohub_user_db
+    username: autohub_user
+    password: autohub_user_pass
+  jpa:
+    hibernate:
+      ddl-auto: update
