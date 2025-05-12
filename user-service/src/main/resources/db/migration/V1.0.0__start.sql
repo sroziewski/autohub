@@ -18,19 +18,20 @@ CREATE TABLE users (
                        CONSTRAINT chk_users_status CHECK (status IN ('ACTIVE', 'INACTIVE', 'BANNED'))
 );
 
--- User_roles table: Stores role assignments for users
-CREATE TABLE user_roles (
+-- roles table: Stores role assignments for users
+CREATE TABLE roles (
+                            id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                             user_id BIGINT NOT NULL,
                             role VARCHAR(50) NOT NULL,
                             assigned_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            CONSTRAINT pk_user_roles PRIMARY KEY (user_id, role),
-                            CONSTRAINT fk_user_roles_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-                            CONSTRAINT chk_user_roles_role CHECK (role IN ('USER', 'SELLER', 'ADMIN', 'MODERATOR'))
+                            CONSTRAINT pk_roles UNIQUE (user_id, role),
+                            CONSTRAINT fk_roles_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                            CONSTRAINT chk_roles_role CHECK (role IN ('USER', 'SELLER', 'ADMIN', 'MODERATOR'))
 );
 
 -- Indexes for performance
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX idx_roles_user_id ON roles(user_id);
 
 -- Insert default admin user (for initial setup)
 INSERT INTO users (email, password, phone, status, created_at)
@@ -42,7 +43,7 @@ VALUES (
            CURRENT_TIMESTAMP
        );
 
-INSERT INTO user_roles (user_id, role, assigned_at)
+INSERT INTO roles (user_id, role, assigned_at)
 VALUES (
            (SELECT id FROM users WHERE email = 'admin@autohub.com'),
            'ADMIN',

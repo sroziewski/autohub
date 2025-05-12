@@ -71,6 +71,10 @@ flyway {
 	password = envProps.getProperty("DB_PASSWORD")
 	baselineOnMigrate = true
 	locations = arrayOf("classpath:db/migration")
+	cleanDisabled = false
+	schemas = arrayOf("autohub")
+	defaultSchema = "autohub"
+	createSchemas = true
 }
 
 tasks.register("printEnvProps") {
