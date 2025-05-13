@@ -1,4 +1,4 @@
-package com.autohub.user_service.infrastructure.config;
+package com.autohub.user_service.infrastructure.configuration;
 
 import lombok.Getter;
 import lombok.Setter;

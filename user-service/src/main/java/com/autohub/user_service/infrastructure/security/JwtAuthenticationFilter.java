@@ -1,6 +1,6 @@
 package com.autohub.user_service.infrastructure.security;
 
-import com.autohub.user_service.infrastructure.config.JwtProperties;
+import com.autohub.user_service.infrastructure.configuration.JwtProperties;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
