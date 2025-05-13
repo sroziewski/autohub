@@ -51,6 +51,7 @@ dependencies {
 	implementation("org.hibernate.orm:hibernate-spatial")
 	implementation("org.locationtech.jts:jts-core")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("commons-validator:commons-validator:1.7")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")

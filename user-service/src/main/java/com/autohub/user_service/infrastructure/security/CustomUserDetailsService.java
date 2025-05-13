@@ -1,4 +1,4 @@
-package com.autohub.user_service.security;
+package com.autohub.user_service.infrastructure.security;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

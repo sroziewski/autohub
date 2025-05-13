@@ -1,7 +1,7 @@
 package com.autohub.user_service.infrastructure.config;
 
-import com.autohub.user_service.security.JwtAuthenticationFilter;
-import com.autohub.user_service.security.JwtUtil;
+import com.autohub.user_service.infrastructure.security.JwtAuthenticationFilter;
+import com.autohub.user_service.infrastructure.security.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

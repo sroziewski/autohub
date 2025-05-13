@@ -1,11 +1,9 @@
-package com.autohub.user_service.domain.model;
+package com.autohub.user_service.domain.entity;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.stream.Collectors;
 
 /**
  * Domain model representing a Region in the business context,

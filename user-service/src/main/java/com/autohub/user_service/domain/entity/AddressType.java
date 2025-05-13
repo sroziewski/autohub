@@ -1,4 +1,4 @@
-package com.autohub.user_service.domain.model;
+package com.autohub.user_service.domain.entity;
 
 public enum AddressType {
     PERSONAL,

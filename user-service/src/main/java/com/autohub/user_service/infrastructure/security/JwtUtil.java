@@ -1,4 +1,4 @@
-package com.autohub.user_service.security;
+package com.autohub.user_service.infrastructure.security;
 
 import com.autohub.user_service.infrastructure.config.JwtProperties;
 import io.jsonwebtoken.Claims;
