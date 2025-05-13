@@ -12,6 +12,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "roles", schema = "autohub", uniqueConstraints = {
         @UniqueConstraint(name = "pk_roles", columnNames = {"user_id", "role"})
+}, indexes = {
+        @Index(name = "idx_roles_user_id", columnList = "user_id")
 })
 @Data
 @Builder

@@ -15,7 +15,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "users", schema = "autohub")
+@Table(name = "users", schema = "autohub", indexes = {
+        @Index(name = "idx_users_email", columnList = "email")
+})
 @Data
 @Builder
 @NoArgsConstructor
