@@ -204,7 +204,7 @@ public class UserValidator {
      * @param secondName Second name (can be null)
      * @param lastName   Last name (can be null)
      * @param phone      Phone number (can be null)
-     * @param birthDate  Birth date (can be null)
+     * @param birthDate  Birthdate (can be null)
      * @return List of validation errors, empty if no errors
      */
     public List<String> validateProfileUpdate(String firstName, String secondName, String lastName,
