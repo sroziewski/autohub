@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Locale;
+
 import static com.autohub.user_service.domain.util.MessageUtils.getMessage;
 
 @RestController
@@ -33,7 +35,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest, Locale locale) throws Exception {
+        System.out.println(getMessage("validation.role.current.required", locale));
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -42,9 +45,8 @@ public class AuthenticationController {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new Exception(getMessage("error.auth.invalid_credentials"), e);
+            throw new Exception(getMessage("error.auth.invalid_credentials", locale), e);
         }
-
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
         final String jwt = jwtUtil.generateToken(userDetails);

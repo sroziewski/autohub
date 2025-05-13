@@ -31,4 +31,4 @@ logging:
   level:
     org.flywaydb: DEBUG
     org.springframework.security: DEBUG
-
+    org.springframework.context.support: DEBUG
