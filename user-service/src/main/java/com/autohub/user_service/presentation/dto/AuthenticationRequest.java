@@ -12,8 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthenticationRequest {
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
     private String email;
+    
+    @NotBlank(message = "{validation.password.current.required}")
     private String password;
 }
