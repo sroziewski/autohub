@@ -1,6 +1,6 @@
 package com.autohub.user_service.controller;
 
-import com.autohub.user_service.model.AuthenticationRequest;
+import com.autohub.user_service.presentation.dto.AuthenticationRequest;
 import com.autohub.user_service.model.AuthenticationResponse;
 import com.autohub.user_service.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +35,7 @@ public class AuthenticationController {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getUsername(),
+                            authenticationRequest.getEmail(),
                             authenticationRequest.getPassword()
                     )
             );
@@ -43,7 +43,7 @@ public class AuthenticationController {
             throw new Exception("Incorrect username or password", e);
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
         final String jwt = jwtUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
