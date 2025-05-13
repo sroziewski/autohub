@@ -30,7 +30,7 @@ CREATE TABLE users (
 -- roles table: Stores role assignments for users
 CREATE TABLE roles (
                             id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                            user_id BIGINT NOT NULL,
+                            user_id UUID NOT NULL,
                             role VARCHAR(50) NOT NULL,
                             assigned_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
                             CONSTRAINT pk_roles UNIQUE (user_id, role),
@@ -62,7 +62,7 @@ CREATE TABLE cities
 CREATE TABLE addresses
 (
     id           BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id      BIGINT                   NOT NULL,
+    user_id      UUID                   NOT NULL,
     address_type VARCHAR(20)              NOT NULL,
     company_name VARCHAR(255),
     street       VARCHAR(255)             NOT NULL,
