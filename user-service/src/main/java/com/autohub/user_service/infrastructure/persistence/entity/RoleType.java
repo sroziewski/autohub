@@ -6,4 +6,3 @@ public enum RoleType {
     ADMIN,
     MODERATOR
 }
-
