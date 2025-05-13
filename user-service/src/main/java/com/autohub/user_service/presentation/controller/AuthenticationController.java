@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.autohub.user_service.domain.util.MessageUtils.getMessage;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
@@ -40,8 +42,9 @@ public class AuthenticationController {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect username or password", e);
+            throw new Exception(getMessage("error.auth.invalid_credentials"), e);
         }
+
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
         final String jwt = jwtUtil.generateToken(userDetails);
