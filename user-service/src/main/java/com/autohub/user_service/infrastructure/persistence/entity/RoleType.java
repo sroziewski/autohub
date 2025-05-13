@@ -1,4 +1,4 @@
-package com.autohub.user_service.domain.model;
+package com.autohub.user_service.infrastructure.persistence.entity;
 
 public enum RoleType {
     USER,

@@ -48,6 +48,8 @@ dependencies {
 	implementation("org.flywaydb:flyway-core")
 	implementation("org.flywaydb:flyway-database-postgresql")
 	implementation("org.springframework.session:spring-session-data-redis")
+	implementation("org.hibernate.orm:hibernate-spatial:6.2.0.Final")
+	implementation("org.locationtech.jts:jts-core:1.18.2")
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")

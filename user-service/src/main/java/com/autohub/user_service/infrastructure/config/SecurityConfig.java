@@ -1,4 +1,4 @@
-package com.autohub.user_service.config;
+package com.autohub.user_service.infrastructure.config;
 
 import com.autohub.user_service.security.JwtAuthenticationFilter;
 import com.autohub.user_service.security.JwtUtil;

@@ -1,11 +1,12 @@
-package com.autohub.user_service.domain.model;
+package com.autohub.user_service.infrastructure.persistence.entity;
 
-import com.autohub.user_service.domain.converter.PointConverter;
+import com.autohub.user_service.infrastructure.persistence.converter.PointConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.geo.Point;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -65,7 +66,7 @@ public class Address {
     
     @Column(name = "coordinates", columnDefinition = "point")
     @Convert(converter = PointConverter.class)
-    private Coordinates coordinates;
+    private Point coordinates;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

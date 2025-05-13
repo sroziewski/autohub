@@ -1,6 +1,6 @@
 package com.autohub.user_service.security;
 
-import com.autohub.user_service.config.JwtProperties;
+import com.autohub.user_service.infrastructure.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
