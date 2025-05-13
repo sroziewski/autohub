@@ -3,7 +3,6 @@ package com.autohub.user_service.domain.validation;
 import com.autohub.user_service.domain.entity.UserDomain;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -12,12 +11,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
  * Validator for UserDomain objects ensuring various business rules are met.
  */
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@RequiredArgsConstructor
 @Component
 public class UserValidator {
 
@@ -49,7 +49,7 @@ public class UserValidator {
      * @param email Email to validate
      * @return true if email is valid
      */
-    public boolean isValidEmail(String email) {
+    private boolean isValidEmail(String email) {
         return email != null && !email.isBlank() && EMAIL_VALIDATOR.isValid(email);
     }
 
@@ -59,14 +59,20 @@ public class UserValidator {
      * @param phone Phone number to validate
      * @return true if phone number is in a valid format
      */
-    public boolean isValidPhone(String phone) {
+    private boolean isValidPhone(String phone) {
         if (phone == null || phone.isBlank()) {
             return true; // Phone is optional
         }
         return PHONE_PATTERN.matcher(phone).matches();
     }
 
-    public boolean isValidPassword(String password) {
+    /**
+     * Validates password complexity requirements
+     *
+     * @param password Password to validate
+     * @return true if password meets complexity requirements
+     */
+    private boolean isValidPassword(String password) {
         if (password == null || password.length() < 8) {
             return false;
         }
@@ -74,7 +80,7 @@ public class UserValidator {
         boolean hasLower = password.chars().anyMatch(Character::isLowerCase);
         boolean hasUpper = password.chars().anyMatch(Character::isUpperCase);
         boolean hasSpecial = password.chars().anyMatch(c -> !Character.isLetterOrDigit(c));
-        
+
         return hasDigit && hasLower && hasUpper && hasSpecial;
     }
 
@@ -84,7 +90,7 @@ public class UserValidator {
      * @param birthDate Birth date to check
      * @return true if the user is at least the minimum required age
      */
-    public boolean isValidAge(LocalDate birthDate) {
+    private boolean isValidAge(LocalDate birthDate) {
         if (birthDate == null) {
             return true; // Birth date is optional
         }
@@ -102,48 +108,108 @@ public class UserValidator {
     }
 
     /**
+     * Creates a validation error for a field
+     *
+     * @param field   Field name
+     * @param code    Error code
+     * @param message Error message
+     * @return ValidationError object
+     */
+    private ValidationError createError(String field, String code, String message) {
+        return ValidationError.builder()
+                .field(field)
+                .code(code)
+                .message(message)
+                .build();
+    }
+
+    /**
+     * Creates a validation error with context
+     *
+     * @param field   Field name
+     * @param code    Error code
+     * @param message Error message
+     * @param context Context information
+     * @return ValidationError object
+     */
+    private ValidationError createError(String field, String code, String message, Map<String, Object> context) {
+        return ValidationError.builder()
+                .field(field)
+                .code(code)
+                .message(message)
+                .context(context)
+                .build();
+    }
+
+    /**
      * Performs comprehensive validation of a user domain object
      *
      * @param userDomain User domain object to validate
-     * @return List of validation errors, empty if no errors
+     * @return ValidationResult containing validation status and errors
      */
-    public List<String> validate(UserDomain userDomain) {
-        List<String> errors = new ArrayList<>();
-
+    public ValidationResult validate(UserDomain userDomain) {
         if (userDomain == null) {
-            errors.add(getMessage("validation.user.null"));
-            return errors;
+            ValidationError error = createError(null, "USER_NULL", getMessage("validation.user.null"));
+            return ValidationResult.invalid(error);
         }
+
+        List<ValidationError> errors = new ArrayList<>();
 
         // Validate email
         if (!isValidEmail(userDomain.getEmail())) {
-            errors.add(getMessage("validation.email.invalid"));
+            errors.add(createError("email", "EMAIL_INVALID", getMessage("validation.email.invalid")));
         }
 
         // Validate phone if provided
         if (!isValidPhone(userDomain.getPhone())) {
-            errors.add(getMessage("validation.phone.invalid"));
+            errors.add(createError("phone", "PHONE_INVALID", getMessage("validation.phone.invalid")));
         }
 
         // Validate birth date if provided
         if (!isValidAge(userDomain.getBirthDate())) {
-            errors.add(getMessage("validation.age.minimum", MINIMUM_AGE));
+            errors.add(createError(
+                    "birthDate",
+                    "AGE_MINIMUM",
+                    getMessage("validation.age.minimum", MINIMUM_AGE),
+                    Map.of("minimumAge", MINIMUM_AGE, "birthDate", userDomain.getBirthDate())
+            ));
         }
 
         // Validate name fields
         if (userDomain.getFirstName() != null && userDomain.getFirstName().length() > 50) {
-            errors.add(getMessage("validation.firstname.length"));
+            errors.add(createError(
+                    "firstName",
+                    "FIRSTNAME_LENGTH",
+                    getMessage("validation.firstname.length"),
+                    Map.of("maxLength", 50, "actualLength", userDomain.getFirstName().length())
+            ));
         }
 
         if (userDomain.getSecondName() != null && userDomain.getSecondName().length() > 50) {
-            errors.add(getMessage("validation.secondname.length"));
+            errors.add(createError(
+                    "secondName",
+                    "SECONDNAME_LENGTH",
+                    getMessage("validation.secondname.length"),
+                    Map.of("maxLength", 50, "actualLength", userDomain.getSecondName().length())
+            ));
         }
 
         if (userDomain.getLastName() != null && userDomain.getLastName().length() > 50) {
-            errors.add(getMessage("validation.lastname.length"));
+            errors.add(createError(
+                    "lastName",
+                    "LASTNAME_LENGTH",
+                    getMessage("validation.lastname.length"),
+                    Map.of("maxLength", 50, "actualLength", userDomain.getLastName().length())
+            ));
         }
 
-        return errors;
+        if (errors.isEmpty()) {
+            return ValidationResult.valid();
+        } else {
+            ValidationResult result = ValidationResult.builder().valid(false).build();
+            errors.forEach(result::addError);
+            return result;
+        }
     }
 
     /**
@@ -151,20 +217,27 @@ public class UserValidator {
      *
      * @param email    User's email
      * @param password User's password
-     * @return List of validation errors, empty if no errors
+     * @return ValidationResult containing validation status and errors
      */
-    public List<String> validateNewUser(String email, String password) {
-        List<String> errors = new ArrayList<>();
+    public ValidationResult validateNewUser(String email, String password) {
+        List<ValidationError> errors = new ArrayList<>();
 
         if (!isValidEmail(email)) {
-            errors.add(getMessage("validation.email.invalid"));
+            errors.add(createError("email", "EMAIL_INVALID", getMessage("validation.email.invalid")));
         }
 
         if (!isValidPassword(password)) {
-            errors.add(getMessage("validation.password.requirements"));
+            errors.add(createError("password", "PASSWORD_REQUIREMENTS",
+                    getMessage("validation.password.requirements")));
         }
 
-        return errors;
+        if (errors.isEmpty()) {
+            return ValidationResult.valid();
+        } else {
+            ValidationResult result = ValidationResult.builder().valid(false).build();
+            errors.forEach(result::addError);
+            return result;
+        }
     }
 
     /**
@@ -173,28 +246,43 @@ public class UserValidator {
      * @param currentPassword Current password
      * @param newPassword     New password
      * @param confirmPassword Confirmation of new password
-     * @return List of validation errors, empty if no errors
+     * @return ValidationResult containing validation status and errors
      */
-    public List<String> validatePasswordChange(String currentPassword, String newPassword, String confirmPassword) {
-        List<String> errors = new ArrayList<>();
+    public ValidationResult validatePasswordChange(String currentPassword, String newPassword, String confirmPassword) {
+        List<ValidationError> errors = new ArrayList<>();
 
         if (currentPassword == null || currentPassword.isBlank()) {
-            errors.add(getMessage("validation.password.current.required"));
+            errors.add(createError("currentPassword", "CURRENT_PASSWORD_REQUIRED",
+                    getMessage("validation.password.current.required")));
         }
 
         if (!isValidPassword(newPassword)) {
-            errors.add(getMessage("validation.password.requirements"));
+            errors.add(createError("newPassword", "PASSWORD_REQUIREMENTS",
+                    getMessage("validation.password.requirements")));
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            errors.add(getMessage("validation.password.mismatch"));
+            errors.add(createError("confirmPassword", "PASSWORD_MISMATCH",
+                    getMessage("validation.password.mismatch")));
         }
 
         if (currentPassword != null && currentPassword.equals(newPassword)) {
-            errors.add(getMessage("validation.password.different"));
+            ValidationError warning = ValidationError.builder()
+                    .field("newPassword")
+                    .code("PASSWORD_SAME")
+                    .message(getMessage("validation.password.different"))
+                    .severity(ValidationError.Severity.WARNING)
+                    .build();
+            errors.add(warning);
         }
 
-        return errors;
+        if (errors.isEmpty()) {
+            return ValidationResult.valid();
+        } else {
+            ValidationResult result = ValidationResult.builder().valid(false).build();
+            errors.forEach(result::addError);
+            return result;
+        }
     }
 
     /**
@@ -205,35 +293,61 @@ public class UserValidator {
      * @param lastName   Last name (can be null)
      * @param phone      Phone number (can be null)
      * @param birthDate  Birthdate (can be null)
-     * @return List of validation errors, empty if no errors
+     * @return ValidationResult containing validation status and errors
      */
-    public List<String> validateProfileUpdate(String firstName, String secondName, String lastName,
-                                              String phone, LocalDate birthDate) {
-        List<String> errors = new ArrayList<>();
+    public ValidationResult validateProfileUpdate(String firstName, String secondName, String lastName,
+                                                  String phone, LocalDate birthDate) {
+        List<ValidationError> errors = new ArrayList<>();
 
         // Validate phone if provided
         if (phone != null && !phone.isBlank() && !isValidPhone(phone)) {
-            errors.add(getMessage("validation.phone.invalid"));
+            errors.add(createError("phone", "PHONE_INVALID", getMessage("validation.phone.invalid")));
         }
 
         // Validate birth date if provided
         if (birthDate != null && !isValidAge(birthDate)) {
-            errors.add(getMessage("validation.age.minimum", MINIMUM_AGE));
+            errors.add(createError(
+                    "birthDate",
+                    "AGE_MINIMUM",
+                    getMessage("validation.age.minimum", MINIMUM_AGE),
+                    Map.of("minimumAge", MINIMUM_AGE, "birthDate", birthDate)
+            ));
         }
 
         // Validate name fields
         if (firstName != null && firstName.length() > 50) {
-            errors.add(getMessage("validation.firstname.length"));
+            errors.add(createError(
+                    "firstName",
+                    "FIRSTNAME_LENGTH",
+                    getMessage("validation.firstname.length"),
+                    Map.of("maxLength", 50, "actualLength", firstName.length())
+            ));
         }
 
         if (secondName != null && secondName.length() > 50) {
-            errors.add(getMessage("validation.secondname.length"));
+            errors.add(createError(
+                    "secondName",
+                    "SECONDNAME_LENGTH",
+                    getMessage("validation.secondname.length"),
+                    Map.of("maxLength", 50, "actualLength", secondName.length())
+            ));
         }
 
         if (lastName != null && lastName.length() > 50) {
-            errors.add(getMessage("validation.lastname.length"));
+            errors.add(createError(
+                    "lastName",
+                    "LASTNAME_LENGTH",
+                    getMessage("validation.lastname.length"),
+                    Map.of("maxLength", 50, "actualLength", lastName.length())
+            ));
         }
 
-        return errors;
+        if (errors.isEmpty()) {
+            return ValidationResult.valid();
+        } else {
+            ValidationResult result = ValidationResult.builder().valid(false).build();
+            errors.forEach(result::addError);
+            return result;
+        }
     }
 }
