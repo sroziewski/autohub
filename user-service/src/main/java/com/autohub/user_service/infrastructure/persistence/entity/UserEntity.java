@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User implements UserDetails {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
@@ -72,7 +72,7 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private final Set<Role> roles = new HashSet<>();
+    private final Set<RoleEntity> roles = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {
@@ -117,7 +117,7 @@ public class User implements UserDetails {
     }
 
     public void addRole(RoleType roleType) {
-        Role role = new Role();
+        RoleEntity role = new RoleEntity();
         role.setUser(this);
         role.setUserId(this.id);
         role.setRole(roleType);

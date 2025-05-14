@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @Builder
 @ToString
-public class AddressDomain {
+public class Address {
     private final Long id;
     private final UUID userId;
     private final AddressType addressType;

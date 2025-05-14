@@ -17,12 +17,12 @@ import java.util.*;
 @Builder(toBuilder = true)
 @ToString(exclude = {"password", "verificationToken", "resetPasswordToken"})
 @EqualsAndHashCode(of = {"id"})
-public class UserDomain {
+public class User {
     private final UUID id;
     private final String email;
     private final String password;
     private final String phone;
-    private final UserStatusDomain status;
+    private final UserStatus status;
     private final String firstName;
     private final String secondName;
     private final String lastName;
@@ -34,7 +34,7 @@ public class UserDomain {
     private final LocalDateTime resetPasswordExpires;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
-    private final Set<RoleDomain> roles;
+    private final Set<Role> roles;
 
     /**
      * Creates a new user with default values
@@ -43,11 +43,11 @@ public class UserDomain {
      * @param password User's password (should be already encrypted)
      * @return A new user domain object
      */
-    public static UserDomain createNew(String email, String password) {
-        return UserDomain.builder()
+    public static User createNew(String email, String password) {
+        return User.builder()
                 .email(email)
                 .password(password)
-                .status(UserStatusDomain.PENDING)
+                .status(UserStatus.PENDING)
                 .verified(false)
                 .verificationToken(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now())
@@ -90,12 +90,12 @@ public class UserDomain {
      * @param roleType The role type to check
      * @return true if the user has the role
      */
-    public boolean hasRole(RoleTypeDomain roleType) {
+    public boolean hasRole(RoleType roleType) {
         if (roles == null) {
             return false;
         }
 
-        for (RoleDomain role : roles) {
+        for (Role role : roles) {
             if (role.getRole() == roleType) {
                 return true;
             }
@@ -110,13 +110,13 @@ public class UserDomain {
      * @param roleType The role type to add
      * @return A new user domain with the role added
      */
-    public UserDomain addRole(RoleTypeDomain roleType) {
+    public User addRole(RoleType roleType) {
         if (hasRole(roleType)) {
             return this;
         }
 
-        Set<RoleDomain> newRoles = new HashSet<>(roles != null ? roles : Collections.emptySet());
-        newRoles.add(RoleDomain.create(id, roleType));
+        Set<Role> newRoles = new HashSet<>(roles != null ? roles : Collections.emptySet());
+        newRoles.add(Role.create(id, roleType));
 
         return toBuilder()
                 .roles(newRoles)
@@ -130,12 +130,12 @@ public class UserDomain {
      * @param roleType The role type to remove
      * @return A new user domain with the role removed
      */
-    public UserDomain removeRole(RoleTypeDomain roleType) {
+    public User removeRole(RoleType roleType) {
         if (!hasRole(roleType)) {
             return this;
         }
 
-        Set<RoleDomain> newRoles = new HashSet<>(roles);
+        Set<Role> newRoles = new HashSet<>(roles);
         newRoles.removeIf(role -> role.getRole() == roleType);
 
         return toBuilder()
@@ -149,7 +149,7 @@ public class UserDomain {
      *
      * @return A new user domain with updated login time
      */
-    public UserDomain recordLogin() {
+    public User recordLogin() {
         return toBuilder()
                 .lastLoginAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -161,13 +161,13 @@ public class UserDomain {
      *
      * @return A new user domain with active status
      */
-    public UserDomain activate() {
-        if (UserStatusDomain.ACTIVE == status) {
+    public User activate() {
+        if (UserStatus.ACTIVE == status) {
             return this;
         }
 
         return toBuilder()
-                .status(UserStatusDomain.ACTIVE)
+                .status(UserStatus.ACTIVE)
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
@@ -177,13 +177,13 @@ public class UserDomain {
      *
      * @return A new user domain with inactive status
      */
-    public UserDomain deactivate() {
-        if (UserStatusDomain.INACTIVE == status) {
+    public User deactivate() {
+        if (UserStatus.INACTIVE == status) {
             return this;
         }
 
         return toBuilder()
-                .status(UserStatusDomain.INACTIVE)
+                .status(UserStatus.INACTIVE)
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
@@ -193,13 +193,13 @@ public class UserDomain {
      *
      * @return A new user domain with banned status
      */
-    public UserDomain ban() {
-        if (UserStatusDomain.BANNED == status) {
+    public User ban() {
+        if (UserStatus.BANNED == status) {
             return this;
         }
 
         return toBuilder()
-                .status(UserStatusDomain.BANNED)
+                .status(UserStatus.BANNED)
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
@@ -210,7 +210,7 @@ public class UserDomain {
      * @param token The verification token to validate
      * @return A new user domain with verified status if token is valid
      */
-    public UserDomain verify(String token) {
+    public User verify(String token) {
         if (verified || !Objects.equals(verificationToken, token)) {
             return this;
         }
@@ -218,7 +218,7 @@ public class UserDomain {
         return toBuilder()
                 .verified(true)
                 .verificationToken(null)
-                .status(UserStatusDomain.ACTIVE)
+                .status(UserStatus.ACTIVE)
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
@@ -229,7 +229,7 @@ public class UserDomain {
      * @param expiryHours Number of hours until reset token expires
      * @return A new user domain with password reset token
      */
-    public UserDomain initiatePasswordReset(int expiryHours) {
+    public User initiatePasswordReset(int expiryHours) {
         String token = UUID.randomUUID().toString();
         LocalDateTime expiry = LocalDateTime.now().plusHours(expiryHours);
 
@@ -247,7 +247,7 @@ public class UserDomain {
      * @param newPassword The new password (should already be encrypted)
      * @return A new user domain with updated password if token is valid
      */
-    public UserDomain completePasswordReset(String token, String newPassword) {
+    public User completePasswordReset(String token, String newPassword) {
         if (resetPasswordToken == null ||
                 !resetPasswordToken.equals(token) ||
                 resetPasswordExpires == null ||
@@ -273,7 +273,7 @@ public class UserDomain {
      * @param birthDate  New birth date (or null to keep existing)
      * @return A new user domain with updated profile information
      */
-    public UserDomain updateProfile(
+    public User updateProfile(
             String firstName,
             String secondName,
             String lastName,
@@ -296,7 +296,7 @@ public class UserDomain {
      * @return true if the account is active
      */
     public boolean isActive() {
-        return UserStatusDomain.ACTIVE == status;
+        return UserStatus.ACTIVE == status;
     }
 
     /**
@@ -305,7 +305,7 @@ public class UserDomain {
      * @return true if the user can log in
      */
     public boolean canLogin() {
-        return UserStatusDomain.ACTIVE == status || UserStatusDomain.PENDING == status;
+        return UserStatus.ACTIVE == status || UserStatus.PENDING == status;
     }
 
     /**
@@ -360,7 +360,7 @@ public class UserDomain {
         }
 
         List<String> roleNames = new ArrayList<>();
-        for (RoleDomain role : roles) {
+        for (Role role : roles) {
             roleNames.add(role.getRole().name());
         }
         return roleNames;

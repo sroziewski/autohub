@@ -1,6 +1,6 @@
 package com.autohub.user_service.domain.validation;
 
-import com.autohub.user_service.domain.entity.UserDomain;
+import com.autohub.user_service.domain.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.context.MessageSource;
@@ -144,11 +144,11 @@ public class UserValidator {
     /**
      * Performs comprehensive validation of a user domain object
      *
-     * @param userDomain User domain object to validate
+     * @param user User domain object to validate
      * @return ValidationResult containing validation status and errors
      */
-    public ValidationResult validate(UserDomain userDomain) {
-        if (userDomain == null) {
+    public ValidationResult validate(User user) {
+        if (user == null) {
             ValidationError error = createError(null, "USER_NULL", "validation.user.null");
             return ValidationResult.invalid(error);
         }
@@ -156,50 +156,50 @@ public class UserValidator {
         List<ValidationError> errors = new ArrayList<>();
 
         // Validate email
-        if (!isValidEmail(userDomain.getEmail())) {
+        if (!isValidEmail(user.getEmail())) {
             errors.add(createError("email", "EMAIL_INVALID", "validation.email.invalid"));
         }
 
         // Validate phone if provided
-        if (!isValidPhone(userDomain.getPhone())) {
+        if (!isValidPhone(user.getPhone())) {
             errors.add(createError("phone", "PHONE_INVALID", "validation.phone.invalid"));
         }
 
         // Validate birth date if provided
-        if (!isValidAge(userDomain.getBirthDate())) {
+        if (!isValidAge(user.getBirthDate())) {
             errors.add(createError(
                     "birthDate",
                     "AGE_MINIMUM",
                     "validation.age.minimum",
-                    Map.of("minimumAge", MINIMUM_AGE, "birthDate", userDomain.getBirthDate())
+                    Map.of("minimumAge", MINIMUM_AGE, "birthDate", user.getBirthDate())
             ));
         }
 
         // Validate name fields
-        if (userDomain.getFirstName() != null && userDomain.getFirstName().length() > 50) {
+        if (user.getFirstName() != null && user.getFirstName().length() > 50) {
             errors.add(createError(
                     "firstName",
                     "FIRSTNAME_LENGTH",
                     "validation.firstname.length",
-                    Map.of("maxLength", 50, "actualLength", userDomain.getFirstName().length())
+                    Map.of("maxLength", 50, "actualLength", user.getFirstName().length())
             ));
         }
 
-        if (userDomain.getSecondName() != null && userDomain.getSecondName().length() > 50) {
+        if (user.getSecondName() != null && user.getSecondName().length() > 50) {
             errors.add(createError(
                     "secondName",
                     "SECONDNAME_LENGTH",
                     "validation.secondname.length",
-                    Map.of("maxLength", 50, "actualLength", userDomain.getSecondName().length())
+                    Map.of("maxLength", 50, "actualLength", user.getSecondName().length())
             ));
         }
 
-        if (userDomain.getLastName() != null && userDomain.getLastName().length() > 50) {
+        if (user.getLastName() != null && user.getLastName().length() > 50) {
             errors.add(createError(
                     "lastName",
                     "LASTNAME_LENGTH",
                     "validation.lastname.length",
-                    Map.of("maxLength", 50, "actualLength", userDomain.getLastName().length())
+                    Map.of("maxLength", 50, "actualLength", user.getLastName().length())
             ));
         }
 

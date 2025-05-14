@@ -13,7 +13,7 @@ import lombok.ToString;
 @Builder(toBuilder = true)
 @ToString
 @EqualsAndHashCode(of = {"id"})
-public class RegionDomain {
+public class Region {
     private final Integer id;
     private final String name;
     private final String code;
@@ -24,8 +24,8 @@ public class RegionDomain {
      * @param name The region name
      * @return A new RegionDomain instance with just a name
      */
-    public static RegionDomain ofName(String name) {
-        return RegionDomain.builder().name(name).build();
+    public static Region ofName(String name) {
+        return Region.builder().name(name).build();
     }
 
     /**
@@ -35,8 +35,8 @@ public class RegionDomain {
      * @param code The region code
      * @return A new RegionDomain instance with name and code
      */
-    public static RegionDomain of(String name, String code) {
-        return RegionDomain.builder()
+    public static Region of(String name, String code) {
+        return Region.builder()
                 .name(name)
                 .code(code)
                 .build();
@@ -95,7 +95,7 @@ public class RegionDomain {
      * @param newName The new name for the region
      * @return A new RegionDomain with updated name
      */
-    public RegionDomain withName(String newName) {
+    public Region withName(String newName) {
         return toBuilder().name(newName).build();
     }
 
@@ -105,7 +105,7 @@ public class RegionDomain {
      * @param newCode The new code for the region
      * @return A new RegionDomain with updated code
      */
-    public RegionDomain withCode(String newCode) {
+    public Region withCode(String newCode) {
         return toBuilder().code(newCode).build();
     }
 
@@ -124,7 +124,7 @@ public class RegionDomain {
      *
      * @return A new RegionDomain with standardized code
      */
-    public RegionDomain withStandardizedCode() {
+    public Region withStandardizedCode() {
         if (code == null) {
             return this;
         }
@@ -135,7 +135,7 @@ public class RegionDomain {
      * Generates a code based on the name if code is missing
      * @return A new RegionDomain with generated code
      */
-    public RegionDomain withGeneratedCodeIfMissing() {
+    public Region withGeneratedCodeIfMissing() {
         if (code != null && !code.isBlank()) {
             return this;
         }

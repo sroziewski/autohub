@@ -1,8 +1,8 @@
 package com.autohub.user_service.presentation.controller;
 
 import com.autohub.user_service.infrastructure.security.JwtUtil;
-import com.autohub.user_service.presentation.dto.AuthenticationRequest;
-import com.autohub.user_service.presentation.dto.AuthenticationResponse;
+import com.autohub.user_service.presentation.dto.auth.AuthenticationRequest;
+import com.autohub.user_service.presentation.dto.auth.AuthenticationResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;

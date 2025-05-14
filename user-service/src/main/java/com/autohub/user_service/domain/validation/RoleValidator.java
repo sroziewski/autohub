@@ -1,7 +1,7 @@
 package com.autohub.user_service.domain.validation;
 
-import com.autohub.user_service.domain.entity.RoleDomain;
-import com.autohub.user_service.domain.entity.RoleTypeDomain;
+import com.autohub.user_service.domain.entity.Role;
+import com.autohub.user_service.domain.entity.RoleType;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
@@ -38,11 +38,11 @@ public class RoleValidator {
     /**
      * Validates a role domain object
      *
-     * @param roleDomain RoleDomain object to validate
+     * @param role RoleDomain object to validate
      * @return Validation result with errors if invalid
      */
-    public ValidationResult validate(RoleDomain roleDomain) {
-        if (roleDomain == null) {
+    public ValidationResult validate(Role role) {
+        if (role == null) {
             ValidationError error = ValidationError.builder()
                     .code("ROLE_NULL")
                     .message("validation.role.null")
@@ -52,7 +52,7 @@ public class RoleValidator {
 
         List<ValidationError> errors = new ArrayList<>();
 
-        if (roleDomain.getUserId() == null) {
+        if (role.getUserId() == null) {
             errors.add(ValidationError.builder()
                     .field("userId")
                     .code("USER_ID_REQUIRED")
@@ -60,7 +60,7 @@ public class RoleValidator {
                     .build());
         }
 
-        if (roleDomain.getRole() == null) {
+        if (role.getRole() == null) {
             errors.add(ValidationError.builder()
                     .field("role")
                     .code("ROLE_TYPE_REQUIRED")
@@ -84,7 +84,7 @@ public class RoleValidator {
      * @param roleType Role type to assign
      * @return Validation result with errors if invalid
      */
-    private ValidationResult validateRoleAssignment(UUID userId, RoleTypeDomain roleType) {
+    private ValidationResult validateRoleAssignment(UUID userId, RoleType roleType) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (userId == null) {
@@ -120,7 +120,7 @@ public class RoleValidator {
      * @param adminRoleCount Current count of admin roles in the system
      * @return Validation result with errors if promotion is invalid
      */
-    public ValidationResult validateRolePromotion(RoleDomain currentRole, RoleTypeDomain targetRole, int adminRoleCount) {
+    public ValidationResult validateRolePromotion(Role currentRole, RoleType targetRole, int adminRoleCount) {
         List<ValidationError> errors = new ArrayList<>();
 
         if (currentRole == null) {
@@ -179,14 +179,14 @@ public class RoleValidator {
     /**
      * Validates if a role can be removed from a user
      *
-     * @param roleDomain     The role to be removed
+     * @param role     The role to be removed
      * @param userRolesCount Total number of roles the user has
      * @return Validation result with errors if removal is invalid
      */
-    private ValidationResult validateRoleRemoval(RoleDomain roleDomain, int userRolesCount) {
+    private ValidationResult validateRoleRemoval(Role role, int userRolesCount) {
         List<ValidationError> errors = new ArrayList<>();
 
-        if (roleDomain == null) {
+        if (role == null) {
             errors.add(ValidationError.builder()
                     .code("ROLE_NULL")
                     .message("validation.role.null")
@@ -207,14 +207,14 @@ public class RoleValidator {
         }
 
         // Check for special requirements for admin role removal
-        if (roleDomain.isAdminRole()) {
+        if (role.isAdminRole()) {
             // Example: Special validation for admin role removal
-            if (roleDomain.isAssignedWithin(90)) { // 90 days cooling period for admin role
+            if (role.isAssignedWithin(90)) { // 90 days cooling period for admin role
                 errors.add(ValidationError.builder()
                         .field("role")
                         .code("ADMIN_REMOVAL_COOLING_PERIOD")
                         .message("validation.role.admin.removal.cooling")
-                        .context(Map.of("coolingPeriod", 90, "assignedAt", roleDomain.getAssignedAt()))
+                        .context(Map.of("coolingPeriod", 90, "assignedAt", role.getAssignedAt()))
                         .build());
             }
         }

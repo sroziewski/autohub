@@ -1,6 +1,6 @@
 package com.autohub.user_service.domain.entity;
 
-public enum UserStatusDomain {
+public enum UserStatus {
     ACTIVE,
     INACTIVE,
     BANNED,

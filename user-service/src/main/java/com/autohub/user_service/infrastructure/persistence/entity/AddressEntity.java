@@ -21,7 +21,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Address {
+public class AddressEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +32,7 @@ public class Address {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private User user;
+    private UserEntity user;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "address_type", nullable = false, length = 20)
@@ -49,14 +49,14 @@ public class Address {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "city_id", insertable = false, updatable = false)
-    private City city;
+    private CityEntity city;
     
     @Column(name = "region_id", nullable = false)
     private Integer regionId;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "region_id", insertable = false, updatable = false)
-    private Region region;
+    private RegionEntity region;
     
     @Column(name = "postal_code", nullable = false, length = 20)
     private String postalCode;

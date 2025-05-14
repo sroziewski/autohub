@@ -16,10 +16,10 @@ import java.util.UUID;
 @Builder(toBuilder = true)
 @ToString
 @EqualsAndHashCode(of = {"userId", "role"})
-public class RoleDomain {
+public class Role {
     private final Long id;
     private final UUID userId;
-    private final RoleTypeDomain role;
+    private final RoleType role;
     private final LocalDateTime assignedAt;
 
     /**
@@ -29,8 +29,8 @@ public class RoleDomain {
      * @param roleType The type of role to assign
      * @return A new RoleDomain instance
      */
-    public static RoleDomain create(UUID userId, RoleTypeDomain roleType) {
-        return RoleDomain.builder()
+    public static Role create(UUID userId, RoleType roleType) {
+        return Role.builder()
                 .userId(userId)
                 .role(roleType)
                 .assignedAt(LocalDateTime.now())
@@ -85,7 +85,7 @@ public class RoleDomain {
      * @param roleType Role type to check against
      * @return true if this role matches the specified role type
      */
-    public boolean is(RoleTypeDomain roleType) {
+    public boolean is(RoleType roleType) {
         return role == roleType;
     }
 
@@ -95,7 +95,7 @@ public class RoleDomain {
      * @param newRoleType The new role type
      * @return A new RoleDomain instance with updated role type
      */
-    public RoleDomain withRoleType(RoleTypeDomain newRoleType) {
+    public Role withRoleType(RoleType newRoleType) {
         if (role == newRoleType) {
             return this;
         }

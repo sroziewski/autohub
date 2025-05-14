@@ -1,6 +1,6 @@
 package com.autohub.user_service.domain.entity;
 
-public enum RoleTypeDomain {
+public enum RoleType {
     USER,
     SELLER,
     ADMIN,

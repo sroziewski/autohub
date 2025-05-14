@@ -1,4 +1,4 @@
-package com.autohub.user_service.presentation.dto;
+package com.autohub.user_service.presentation.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

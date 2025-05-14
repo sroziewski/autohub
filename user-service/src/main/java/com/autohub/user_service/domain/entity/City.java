@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 @Getter
 @Builder(toBuilder = true)  // Add toBuilder = true to enable toBuilder() method
 @ToString
-public class CityDomain {
+public class City {
     private final Integer id;
     private final Integer regionId;
     private final String name;
@@ -105,7 +105,7 @@ public class CityDomain {
      * @param newName The new name for the city
      * @return New CityDomain instance with updated name
      */
-    public CityDomain withName(String newName) {
+    public City withName(String newName) {
         return toBuilder().name(newName).build();
     }
     
@@ -114,7 +114,7 @@ public class CityDomain {
      * @param newPattern The new postal code pattern
      * @return New CityDomain instance with updated postal code pattern
      */
-    public CityDomain withPostalCodePattern(String newPattern) {
+    public City withPostalCodePattern(String newPattern) {
         return toBuilder().postalCodePattern(newPattern).build();
     }
     
@@ -125,7 +125,7 @@ public class CityDomain {
      * @param newRegionCode Code of the new region
      * @return New CityDomain instance with updated region information
      */
-    public CityDomain moveToRegion(Integer newRegionId, String newRegionName, String newRegionCode) {
+    public City moveToRegion(Integer newRegionId, String newRegionName, String newRegionCode) {
         return toBuilder()
             .regionId(newRegionId)
             .regionName(newRegionName)

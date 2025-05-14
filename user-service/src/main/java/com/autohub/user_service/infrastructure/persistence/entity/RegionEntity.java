@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Region {
+public class RegionEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class Region {
     private String code;
 
     @OneToMany(mappedBy = "region", fetch = FetchType.LAZY)
-    private List<City> cities;
+    private List<CityEntity> cities;
 
     @OneToMany(mappedBy = "region", fetch = FetchType.LAZY)
     private List<Address> addresses;
