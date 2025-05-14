@@ -45,7 +45,7 @@ public class RoleValidator {
         if (roleDomain == null) {
             ValidationError error = ValidationError.builder()
                     .code("ROLE_NULL")
-                    .message(getMessage("validation.role.null"))
+                    .message("validation.role.null")
                     .build();
             return ValidationResult.invalid(error);
         }
@@ -56,7 +56,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("userId")
                     .code("USER_ID_REQUIRED")
-                    .message(getMessage("validation.role.userId.required"))
+                    .message("validation.role.userId.required")
                     .build());
         }
 
@@ -64,7 +64,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("role")
                     .code("ROLE_TYPE_REQUIRED")
-                    .message(getMessage("validation.role.type.required"))
+                    .message("validation.role.type.required")
                     .build());
         }
 
@@ -91,7 +91,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("userId")
                     .code("USER_ID_REQUIRED")
-                    .message(getMessage("validation.role.userId.required"))
+                    .message("validation.role.userId.required")
                     .build());
         }
 
@@ -99,7 +99,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("roleType")
                     .code("ROLE_TYPE_REQUIRED")
-                    .message(getMessage("validation.role.type.required"))
+                    .message("validation.role.type.required")
                     .build());
         }
 
@@ -127,7 +127,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("currentRole")
                     .code("CURRENT_ROLE_REQUIRED")
-                    .message(getMessage("validation.role.current.required"))
+                    .message("validation.role.current.required")
                     .build());
 
             ValidationResult result = ValidationResult.builder().valid(false).build();
@@ -139,7 +139,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("targetRole")
                     .code("TARGET_ROLE_REQUIRED")
-                    .message(getMessage("validation.role.target.required"))
+                    .message("validation.role.target.required")
                     .build());
 
             ValidationResult result = ValidationResult.builder().valid(false).build();
@@ -152,7 +152,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("targetRole")
                     .code("SAME_ROLE_PROMOTION")
-                    .message(getMessage("validation.role.promotion.same"))
+                    .message("validation.role.promotion.same")
                     .severity(ValidationError.Severity.WARNING)
                     .build());
         }
@@ -162,7 +162,7 @@ public class RoleValidator {
             errors.add(ValidationError.builder()
                     .field("targetRole")
                     .code("ADMIN_ROLE_LIMIT")
-                    .message(getMessage("validation.role.admin.limit", MAX_ADMIN_ROLES))
+                    .message("validation.role.admin.limit")
                     .context(Map.of("limit", MAX_ADMIN_ROLES, "current", adminRoleCount))
                     .build());
         }
@@ -189,7 +189,7 @@ public class RoleValidator {
         if (roleDomain == null) {
             errors.add(ValidationError.builder()
                     .code("ROLE_NULL")
-                    .message(getMessage("validation.role.null"))
+                    .message("validation.role.null")
                     .build());
 
             ValidationResult result = ValidationResult.builder().valid(false).build();
@@ -201,7 +201,7 @@ public class RoleValidator {
         if (userRolesCount <= 1) {
             errors.add(ValidationError.builder()
                     .code("MINIMUM_ROLE_REQUIREMENT")
-                    .message(getMessage("validation.role.removal.minimum"))
+                    .message("validation.role.removal.minimum")
                     .context(userRolesCount)
                     .build());
         }
@@ -213,7 +213,7 @@ public class RoleValidator {
                 errors.add(ValidationError.builder()
                         .field("role")
                         .code("ADMIN_REMOVAL_COOLING_PERIOD")
-                        .message(getMessage("validation.role.admin.removal.cooling", 90))
+                        .message("validation.role.admin.removal.cooling")
                         .context(Map.of("coolingPeriod", 90, "assignedAt", roleDomain.getAssignedAt()))
                         .build());
             }

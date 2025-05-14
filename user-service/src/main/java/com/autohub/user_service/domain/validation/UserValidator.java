@@ -149,7 +149,7 @@ public class UserValidator {
      */
     public ValidationResult validate(UserDomain userDomain) {
         if (userDomain == null) {
-            ValidationError error = createError(null, "USER_NULL", getMessage("validation.user.null"));
+            ValidationError error = createError(null, "USER_NULL", "validation.user.null");
             return ValidationResult.invalid(error);
         }
 
@@ -157,12 +157,12 @@ public class UserValidator {
 
         // Validate email
         if (!isValidEmail(userDomain.getEmail())) {
-            errors.add(createError("email", "EMAIL_INVALID", getMessage("validation.email.invalid")));
+            errors.add(createError("email", "EMAIL_INVALID", "validation.email.invalid"));
         }
 
         // Validate phone if provided
         if (!isValidPhone(userDomain.getPhone())) {
-            errors.add(createError("phone", "PHONE_INVALID", getMessage("validation.phone.invalid")));
+            errors.add(createError("phone", "PHONE_INVALID", "validation.phone.invalid"));
         }
 
         // Validate birth date if provided
@@ -170,7 +170,7 @@ public class UserValidator {
             errors.add(createError(
                     "birthDate",
                     "AGE_MINIMUM",
-                    getMessage("validation.age.minimum", MINIMUM_AGE),
+                    "validation.age.minimum",
                     Map.of("minimumAge", MINIMUM_AGE, "birthDate", userDomain.getBirthDate())
             ));
         }
@@ -180,7 +180,7 @@ public class UserValidator {
             errors.add(createError(
                     "firstName",
                     "FIRSTNAME_LENGTH",
-                    getMessage("validation.firstname.length"),
+                    "validation.firstname.length",
                     Map.of("maxLength", 50, "actualLength", userDomain.getFirstName().length())
             ));
         }
@@ -189,7 +189,7 @@ public class UserValidator {
             errors.add(createError(
                     "secondName",
                     "SECONDNAME_LENGTH",
-                    getMessage("validation.secondname.length"),
+                    "validation.secondname.length",
                     Map.of("maxLength", 50, "actualLength", userDomain.getSecondName().length())
             ));
         }
@@ -198,7 +198,7 @@ public class UserValidator {
             errors.add(createError(
                     "lastName",
                     "LASTNAME_LENGTH",
-                    getMessage("validation.lastname.length"),
+                    "validation.lastname.length",
                     Map.of("maxLength", 50, "actualLength", userDomain.getLastName().length())
             ));
         }
@@ -223,12 +223,11 @@ public class UserValidator {
         List<ValidationError> errors = new ArrayList<>();
 
         if (!isValidEmail(email)) {
-            errors.add(createError("email", "EMAIL_INVALID", getMessage("validation.email.invalid")));
+            errors.add(createError("email", "EMAIL_INVALID", "validation.email.invalid"));
         }
 
         if (!isValidPassword(password)) {
-            errors.add(createError("password", "PASSWORD_REQUIREMENTS",
-                    getMessage("validation.password.requirements")));
+            errors.add(createError("password", "PASSWORD_REQUIREMENTS", "validation.password.requirements"));
         }
 
         if (errors.isEmpty()) {
@@ -252,25 +251,22 @@ public class UserValidator {
         List<ValidationError> errors = new ArrayList<>();
 
         if (currentPassword == null || currentPassword.isBlank()) {
-            errors.add(createError("currentPassword", "CURRENT_PASSWORD_REQUIRED",
-                    getMessage("validation.password.current.required")));
+            errors.add(createError("currentPassword", "CURRENT_PASSWORD_REQUIRED", "validation.password.current.required"));
         }
 
         if (!isValidPassword(newPassword)) {
-            errors.add(createError("newPassword", "PASSWORD_REQUIREMENTS",
-                    getMessage("validation.password.requirements")));
+            errors.add(createError("newPassword", "PASSWORD_REQUIREMENTS", "validation.password.requirements"));
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            errors.add(createError("confirmPassword", "PASSWORD_MISMATCH",
-                    getMessage("validation.password.mismatch")));
+            errors.add(createError("confirmPassword", "PASSWORD_MISMATCH", "validation.password.mismatch"));
         }
 
         if (currentPassword != null && currentPassword.equals(newPassword)) {
             ValidationError warning = ValidationError.builder()
                     .field("newPassword")
                     .code("PASSWORD_SAME")
-                    .message(getMessage("validation.password.different"))
+                    .message("validation.password.different")
                     .severity(ValidationError.Severity.WARNING)
                     .build();
             errors.add(warning);
@@ -301,7 +297,7 @@ public class UserValidator {
 
         // Validate phone if provided
         if (phone != null && !phone.isBlank() && !isValidPhone(phone)) {
-            errors.add(createError("phone", "PHONE_INVALID", getMessage("validation.phone.invalid")));
+            errors.add(createError("phone", "PHONE_INVALID", "validation.phone.invalid"));
         }
 
         // Validate birth date if provided
@@ -309,7 +305,7 @@ public class UserValidator {
             errors.add(createError(
                     "birthDate",
                     "AGE_MINIMUM",
-                    getMessage("validation.age.minimum", MINIMUM_AGE),
+                    "validation.age.minimum",
                     Map.of("minimumAge", MINIMUM_AGE, "birthDate", birthDate)
             ));
         }
@@ -319,7 +315,7 @@ public class UserValidator {
             errors.add(createError(
                     "firstName",
                     "FIRSTNAME_LENGTH",
-                    getMessage("validation.firstname.length"),
+                    "validation.firstname.length",
                     Map.of("maxLength", 50, "actualLength", firstName.length())
             ));
         }
@@ -328,7 +324,7 @@ public class UserValidator {
             errors.add(createError(
                     "secondName",
                     "SECONDNAME_LENGTH",
-                    getMessage("validation.secondname.length"),
+                    "validation.secondname.length",
                     Map.of("maxLength", 50, "actualLength", secondName.length())
             ));
         }
@@ -337,7 +333,7 @@ public class UserValidator {
             errors.add(createError(
                     "lastName",
                     "LASTNAME_LENGTH",
-                    getMessage("validation.lastname.length"),
+                    "validation.lastname.length",
                     Map.of("maxLength", 50, "actualLength", lastName.length())
             ));
         }

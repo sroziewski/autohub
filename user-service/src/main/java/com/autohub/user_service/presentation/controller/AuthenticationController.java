@@ -1,8 +1,8 @@
 package com.autohub.user_service.presentation.controller;
 
+import com.autohub.user_service.infrastructure.security.JwtUtil;
 import com.autohub.user_service.presentation.dto.AuthenticationRequest;
 import com.autohub.user_service.presentation.dto.AuthenticationResponse;
-import com.autohub.user_service.infrastructure.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Locale;
-
-import static com.autohub.user_service.domain.util.MessageUtils.getMessage;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,8 +31,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest, Locale locale) throws Exception {
-        System.out.println(getMessage("validation.role.current.required", locale));
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -45,7 +40,7 @@ public class AuthenticationController {
                     )
             );
         } catch (BadCredentialsException e) {
-            throw new Exception(getMessage("error.auth.invalid_credentials", locale), e);
+            throw new Exception("error.auth.invalid_credentials", e);
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getEmail());
