@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -38,7 +39,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Testcontainers
+@Transactional
 public class AuthenticationControllerIntegrationTest {
+
+    private static final String TEST_EMAIL = "test@example.com";
+    private static final String TEST_PASSWORD = "Test1234!";
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14")
+            .withDatabaseName("autohub_test")
+            .withUsername("test")
+            .withPassword("test")
+            .withInitScript("db/init/create-user.sql");
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private ObjectMapper objectMapper;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    private UserEntity testUser;
 
     @BeforeAll
     static void createSchema() {
@@ -53,13 +73,6 @@ public class AuthenticationControllerIntegrationTest {
             throw new RuntimeException("Failed to create schema", e);
         }
     }
-
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14")
-            .withDatabaseName("autohub_test")
-            .withUsername("test")
-            .withPassword("test");
 
     @DynamicPropertySource
     static void postgresProperties(DynamicPropertyRegistry registry) {
@@ -80,37 +93,21 @@ public class AuthenticationControllerIntegrationTest {
         registry.add("spring.flyway.clean-disabled", () -> "false");
     }
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    private static final String TEST_EMAIL = "test@example.com";
-    private static final String TEST_PASSWORD = "Test1234!";
-    private UserEntity testUser;
-
     @BeforeEach
     void setUp() {
-        // Create a test user with encoded password
-        String encodedPassword = passwordEncoder.encode(TEST_PASSWORD);
+        userRepository.deleteAll();
 
         testUser = new UserEntity();
         testUser.setId(UUID.randomUUID());
         testUser.setEmail(TEST_EMAIL);
-        testUser.setPassword(encodedPassword);
+        testUser.setPassword(passwordEncoder.encode(TEST_PASSWORD));
         testUser.setStatus(UserStatus.ACTIVE);
         testUser.setVerified(true);
         testUser.addRole(RoleType.USER);
 
-        userRepository.save(testUser);
+        testUser = userRepository.saveAndFlush(testUser);
     }
+
 
     @AfterEach
     void tearDown() {
@@ -123,7 +120,7 @@ public class AuthenticationControllerIntegrationTest {
         AuthenticationRequest request = new AuthenticationRequest(TEST_EMAIL, TEST_PASSWORD);
 
         // When & Then
-        mockMvc.perform(post("/api/auth/login")  // Make sure path is correct with context-path
+        mockMvc.perform(post("/auth/login")  // Make sure path is correct with context-path
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -136,7 +133,7 @@ public class AuthenticationControllerIntegrationTest {
         AuthenticationRequest request = new AuthenticationRequest(TEST_EMAIL, "wrongPassword");
 
         // When & Then
-        mockMvc.perform(post("/api/auth/login")
+        mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());

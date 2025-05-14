@@ -5,27 +5,28 @@ CREATE SCHEMA IF NOT EXISTS autohub AUTHORIZATION autohub_user;
 SET search_path TO autohub;
 
 -- Users table: Stores core user information
-CREATE TABLE users (
-                       id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-                       email VARCHAR(255) NOT NULL,
-                       password VARCHAR(255) NOT NULL,
-                       phone VARCHAR(20),
-                       status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
-                       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       updated_at TIMESTAMP WITH TIME ZONE,
-                       first_name VARCHAR(50),
-                       second_name VARCHAR(50),
-                       last_name VARCHAR(50),
-                       birth_date DATE,
-                       last_login_at TIMESTAMP WITH TIME ZONE,
-                       verified BOOLEAN DEFAULT FALSE,
-                       verification_token VARCHAR(255),
-                       reset_password_token VARCHAR(255),
-                       reset_password_expires TIMESTAMP WITH TIME ZONE,
-                       CONSTRAINT uk_users_email UNIQUE (email),
-                       CONSTRAINT chk_users_email CHECK (email ~ '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-                       CONSTRAINT chk_users_status CHECK (status IN ('ACTIVE', 'INACTIVE', 'BANNED'))
+create table autohub.users (
+                               id uuid primary key not null default gen_random_uuid(),
+                               email character varying(255) not null,
+                               password character varying(255) not null,
+                               phone character varying(20),
+                               status character varying(20) not null default 'ACTIVE',
+                               created_at timestamp with time zone not null default CURRENT_TIMESTAMP,
+                               updated_at timestamp with time zone,
+                               first_name character varying(50),
+                               second_name character varying(50),
+                               last_name character varying(50),
+                               birth_date date,
+                               last_login_at timestamp with time zone,
+                               verified boolean default false,
+                               verification_token character varying(255),
+                               reset_password_token character varying(255),
+                               reset_password_expires timestamp with time zone,
+                               version bigint default 0
 );
+create unique index uk_users_email on users using btree (email);
+create index idx_users_email on users using btree (email);
+
 
 -- roles table: Stores role assignments for users
 CREATE TABLE roles (
@@ -39,7 +40,6 @@ CREATE TABLE roles (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_roles_user_id ON roles(user_id);
 
 CREATE TABLE regions
