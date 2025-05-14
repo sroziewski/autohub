@@ -1,0 +1,23 @@
+[versions]
+# JWT
+jjwt = "0.11.5"
+
+# TestContainers
+testcontainers = "1.19.3"
+postgresql = "42.6.0"
+
+[libraries]
+# JWT dependencies
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+
+# TestContainers dependencies
+testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
+testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+
+[bundles]
+jwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
+testcontainers = ["testcontainers-core", "testcontainers-junit", "testcontainers-postgresql"]
