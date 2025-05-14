@@ -36,5 +36,5 @@ public class CityEntity {
     private String postalCodePattern;
     
     @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
-    private List<Address> addresses;
+    private List<AddressEntity> addresses;
 }
