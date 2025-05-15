@@ -12,10 +12,10 @@ if (envFile.exists()) {
 
 plugins {
     java
-    id("org.springframework.boot") version "3.4.5"
-    id("io.spring.dependency-management") version "1.1.7"
-    id("org.flywaydb.flyway") version "9.16.0"
-    id("com.github.gmazzo.buildconfig") version "3.1.0"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.flyway)
+    alias(libs.plugins.buildconfig)
 }
 
 group = "com.autohub.user-service"
@@ -38,34 +38,51 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    implementation("org.springframework.boot:spring-boot-starter-mail")
-    implementation("org.springframework.boot:spring-boot-starter-quartz")
-    implementation("org.springframework.boot:spring-boot-starter-security")
+    // Spring Boot core dependencies
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.flywaydb:flyway-core")
-    implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("org.springframework.session:spring-session-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Database and persistence
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.hibernate.orm:hibernate-spatial")
     implementation("org.locationtech.jts:jts-core")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("commons-validator:commons-validator:1.7")
+    runtimeOnly(libs.postgresql.driver)
+
+    // Flyway database migration
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+
+    // Redis and session management
+    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
+    implementation("org.springframework.session:spring-session-data-redis")
+
+    // Scheduled tasks and email
+    implementation("org.springframework.boot:spring-boot-starter-quartz")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+
+    // Validation
+    implementation(libs.commons.validator)
+
+    // Security and JWT
+    implementation(libs.bundles.jwt)
+
+    // MapStruct
+    implementation(libs.bundles.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+
+    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    runtimeOnly("org.postgresql:postgresql")
+    annotationProcessor(libs.lombok.mapstruct.binding)
+
+    // Test dependencies
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.projectreactor:reactor-test")
+    testImplementation(libs.bundles.testcontainers)
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation(libs.testcontainers.core)
-    testImplementation(libs.testcontainers.junit)
-    testImplementation(libs.testcontainers.postgresql)
-    runtimeOnly(libs.postgresql.driver)
-    implementation(libs.jjwt.api)
-    runtimeOnly(libs.jjwt.impl)
-    runtimeOnly(libs.jjwt.jackson)
 }
 
 tasks.withType<Test> {
