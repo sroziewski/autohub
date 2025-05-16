@@ -58,6 +58,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
     implementation("org.springframework.session:spring-session-data-redis")
 
+    // Message queue for asynchronous processing
+    implementation("org.springframework.boot:spring-boot-starter-amqp")
+
     // Scheduled tasks and email
     implementation("org.springframework.boot:spring-boot-starter-quartz")
     implementation("org.springframework.boot:spring-boot-starter-mail")

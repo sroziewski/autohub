@@ -235,6 +235,20 @@ public class EmailService {
     }
 
     /**
+     * Public method to send a generic email using Thymeleaf templates
+     * This method is used by the asynchronous email consumer
+     *
+     * @param to Email recipient
+     * @param subject Email subject
+     * @param templateName Name of Thymeleaf template (without .html extension)
+     * @param variables Variables to pass to template
+     */
+    @Async
+    public void sendGenericEmail(String to, String subject, String templateName, Map<String, Object> variables) {
+        sendEmail(to, subject, templateName, variables);
+    }
+
+    /**
      * Simple class to hold email parameters
      */
     private static class EmailParameters {

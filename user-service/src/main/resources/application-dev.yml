@@ -55,6 +55,20 @@ spring:
           auth: false
           starttls:
             enable: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          max-interval: 10000
+          multiplier: 2.0
 
 application:
   jwt:
@@ -67,6 +81,31 @@ logging:
     org.flywaydb: DEBUG
     org.springframework.security: DEBUG
     org.springframework.context.support: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: db,redis,diskSpace
+        liveness:
+          include: ping
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
 
 app:
   mail:
