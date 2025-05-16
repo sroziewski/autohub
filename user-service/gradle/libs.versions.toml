@@ -5,6 +5,12 @@ spring-dependency-management = "1.1.7"
 flyway = "9.16.0"
 buildconfig = "3.1.0"
 
+# Logging
+logstash-logback-encoder = "7.4"
+
+# AOP
+spring-aop = "3.4.5"
+
 # JWT
 jjwt = "0.11.5"
 
@@ -48,6 +54,12 @@ lombok-mapstruct-binding = { module = "org.projectlombok:lombok-mapstruct-bindin
 # Validation dependencies
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commons-validator" }
 
+# Logging dependencies
+logstash-logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logstash-logback-encoder" }
+
+# AOP dependencies
+spring-aop = { module = "org.springframework.boot:spring-boot-starter-aop", version.ref = "spring-aop" }
+
 # TOTP dependencies
 aerogear-otp = { module = "org.jboss.aerogear:aerogear-otp-java", version.ref = "aerogear-otp" }
 
@@ -68,6 +80,8 @@ mapstruct = ["mapstruct"]
 bucket4j = ["bucket4j-core", "bucket4j-jcache"]
 resilience4j = ["resilience4j-spring-boot3", "resilience4j-circuitbreaker", "resilience4j-retry", "resilience4j-timelimiter"]
 totp = ["aerogear-otp"]
+logging = ["logstash-logback-encoder"]
+aop = ["spring-aop"]
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

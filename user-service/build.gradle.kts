@@ -80,6 +80,12 @@ dependencies {
     // Circuit breaker
     implementation(libs.bundles.resilience4j)
 
+    // Structured logging
+    implementation(libs.bundles.logging)
+
+    // AOP for logging aspect
+    implementation(libs.bundles.aop)
+
     // TOTP for 2FA
     implementation(libs.bundles.totp)
 

@@ -2,7 +2,9 @@ package com.autohub.user_service.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
+import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -80,7 +82,23 @@ public class UserEntity implements UserDetails {
     @Column(name = "account_locked_until")
     private LocalDateTime accountLockedUntil;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @Column(name = "oauth_provider")
+    private String oauthProvider;
+
+    @Column(name = "oauth_provider_id")
+    private String oauthProviderId;
+
+    @Column(name = "two_factor_enabled")
+    private boolean twoFactorEnabled;
+
+    @Column(name = "two_factor_secret")
+    private String twoFactorSecret;
+
+    @Column(name = "backup_codes")
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    private List<String> backupCodes;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private final Set<RoleEntity> roles = new HashSet<>();
 
     @PrePersist

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="AutoHub User Service"/>
+    <springProperty scope="context" name="appEnv" source="spring.profiles.active" defaultValue="dev"/>
+
+    <!-- Console appender with plain text format for local development -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- JSON appender for structured logging -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>requestId</includeMdcKeyName>
+            <includeMdcKeyName>userId</includeMdcKeyName>
+            <includeMdcKeyName>clientIp</includeMdcKeyName>
+            <includeMdcKeyName>endpoint</includeMdcKeyName>
+            <includeMdcKeyName>httpMethod</includeMdcKeyName>
+            <includeMdcKeyName>statusCode</includeMdcKeyName>
+            <includeMdcKeyName>executionTime</includeMdcKeyName>
+            <customFields>{"app_name":"${appName}","environment":"${appEnv}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- File appender for persistent logging -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/autohub-user-service.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/autohub-user-service.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeMdcKeyName>requestId</includeMdcKeyName>
+            <includeMdcKeyName>userId</includeMdcKeyName>
+            <includeMdcKeyName>clientIp</includeMdcKeyName>
+            <includeMdcKeyName>endpoint</includeMdcKeyName>
+            <includeMdcKeyName>httpMethod</includeMdcKeyName>
+            <includeMdcKeyName>statusCode</includeMdcKeyName>
+            <includeMdcKeyName>executionTime</includeMdcKeyName>
+            <customFields>{"app_name":"${appName}","environment":"${appEnv}"}</customFields>
+        </encoder>
+    </appender>
+
+    <!-- Configure loggers -->
+    <logger name="com.autohub" level="INFO" additivity="false">
+        <appender-ref ref="${CONSOLE_LOG_APPENDER:-JSON_CONSOLE}"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- SQL logging for development -->
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="${CONSOLE_LOG_APPENDER:-CONSOLE}"/>
+    </logger>
+    
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+        <appender-ref ref="${CONSOLE_LOG_APPENDER:-CONSOLE}"/>
+    </logger>
+
+    <!-- Spring framework logging -->
+    <logger name="org.springframework" level="INFO" additivity="false">
+        <appender-ref ref="${CONSOLE_LOG_APPENDER:-JSON_CONSOLE}"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="${CONSOLE_LOG_APPENDER:-JSON_CONSOLE}"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
