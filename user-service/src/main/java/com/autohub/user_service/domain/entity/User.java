@@ -40,6 +40,8 @@ public class User {
     private final boolean twoFactorEnabled;
     private final String twoFactorSecret;
     private final List<String> backupCodes;
+    private final int failedLoginAttempts;
+    private final LocalDateTime accountLockedUntil;
 
     /**
      * Creates a new user with default values
@@ -59,6 +61,7 @@ public class User {
                 .roles(new HashSet<>())
                 .twoFactorEnabled(false)
                 .backupCodes(new ArrayList<>())
+                .failedLoginAttempts(0)
                 .build();
     }
 
@@ -86,6 +89,7 @@ public class User {
                 .oauthProviderId(oauthProviderId)
                 .twoFactorEnabled(false)
                 .backupCodes(new ArrayList<>())
+                .failedLoginAttempts(0)
                 .build();
     }
 
@@ -179,15 +183,17 @@ public class User {
     }
 
     /**
-     * Updates the user's login timestamp
+     * Updates the user's login timestamp and resets failed login attempts
      *
-     * @return A new user domain with updated login time
+     * @return A new user domain with updated login time and reset failed login attempts
      */
     public User recordLogin() {
-        return toBuilder()
+        User updatedUser = toBuilder()
                 .lastLoginAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
+
+        return updatedUser.resetFailedLoginAttempts();
     }
 
     /**
@@ -339,7 +345,55 @@ public class User {
      * @return true if the user can log in
      */
     public boolean canLogin() {
-        return UserStatus.ACTIVE == status || UserStatus.PENDING == status;
+        return (UserStatus.ACTIVE == status || UserStatus.PENDING == status) && !isAccountLocked();
+    }
+
+    /**
+     * Checks if the account is locked due to too many failed login attempts
+     *
+     * @return true if the account is locked
+     */
+    public boolean isAccountLocked() {
+        return accountLockedUntil != null && accountLockedUntil.isAfter(LocalDateTime.now());
+    }
+
+    /**
+     * Records a failed login attempt and locks the account if the maximum number of attempts is reached
+     *
+     * @param maxAttempts The maximum number of allowed failed attempts
+     * @param lockDurationMinutes The duration in minutes for which the account should be locked
+     * @return A new user domain with updated failed login attempts and possibly locked account
+     */
+    public User recordFailedLogin(int maxAttempts, int lockDurationMinutes) {
+        int newFailedAttempts = failedLoginAttempts + 1;
+        LocalDateTime newLockTime = null;
+
+        if (newFailedAttempts >= maxAttempts) {
+            newLockTime = LocalDateTime.now().plusMinutes(lockDurationMinutes);
+        }
+
+        return toBuilder()
+                .failedLoginAttempts(newFailedAttempts)
+                .accountLockedUntil(newLockTime)
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    /**
+     * Resets the failed login attempts counter after a successful login
+     *
+     * @return A new user domain with reset failed login attempts
+     */
+    public User resetFailedLoginAttempts() {
+        if (failedLoginAttempts == 0 && accountLockedUntil == null) {
+            return this;
+        }
+
+        return toBuilder()
+                .failedLoginAttempts(0)
+                .accountLockedUntil(null)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     /**

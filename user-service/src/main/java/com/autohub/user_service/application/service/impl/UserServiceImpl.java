@@ -26,6 +26,9 @@ import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private static final int MAX_FAILED_LOGIN_ATTEMPTS = 5;
+    private static final int ACCOUNT_LOCKOUT_DURATION_MINUTES = 30;
+
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final UserRepositoryImpl userRepositoryImpl;
@@ -325,5 +328,25 @@ public class UserServiceImpl implements UserService {
             // Verify TOTP code
             return twoFactorAuthService.verifyTotp(user.getTwoFactorSecret(), code);
         }
+    }
+
+    @Override
+    @Transactional
+    public boolean recordFailedLoginAttempt(String email) {
+        return userRepositoryImpl.findByEmail(email)
+                .map(user -> {
+                    User updatedUser = user.recordFailedLogin(MAX_FAILED_LOGIN_ATTEMPTS, ACCOUNT_LOCKOUT_DURATION_MINUTES);
+                    userRepositoryImpl.save(updatedUser);
+                    return updatedUser.isAccountLocked();
+                })
+                .orElse(false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isAccountLocked(String email) {
+        return userRepositoryImpl.findByEmail(email)
+                .map(User::isAccountLocked)
+                .orElse(false);
     }
 }

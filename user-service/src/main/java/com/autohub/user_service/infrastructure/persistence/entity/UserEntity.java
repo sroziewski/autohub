@@ -74,6 +74,12 @@ public class UserEntity implements UserDetails {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "failed_login_attempts")
+    private int failedLoginAttempts;
+
+    @Column(name = "account_locked_until")
+    private LocalDateTime accountLockedUntil;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private final Set<RoleEntity> roles = new HashSet<>();
 
@@ -106,7 +112,8 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !UserStatusEntity.BANNED.equals(status);
+        return !UserStatusEntity.BANNED.equals(status) && 
+               (accountLockedUntil == null || accountLockedUntil.isBefore(LocalDateTime.now()));
     }
 
     @Override

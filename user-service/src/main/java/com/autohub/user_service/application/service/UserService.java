@@ -157,4 +157,20 @@ public interface UserService {
      * @return true if the code is valid
      */
     boolean verifyTwoFactorCode(UUID userId, String code, boolean isBackupCode);
+
+    /**
+     * Records a failed login attempt for a user and locks the account if necessary
+     *
+     * @param email User's email address
+     * @return true if the account was locked as a result of this failed attempt
+     */
+    boolean recordFailedLoginAttempt(String email);
+
+    /**
+     * Checks if a user account is locked due to too many failed login attempts
+     *
+     * @param email User's email address
+     * @return true if the account is locked
+     */
+    boolean isAccountLocked(String email);
 }
