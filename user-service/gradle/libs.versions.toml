@@ -11,6 +11,9 @@ jjwt = "0.11.5"
 # Rate Limiting
 bucket4j = "7.6.0"
 
+# Resilience4j
+resilience4j = "2.2.0"
+
 # TestContainers
 testcontainers = "1.19.3"
 postgresql = "42.6.0"
@@ -46,11 +49,18 @@ commons-validator = { module = "commons-validator:commons-validator", version.re
 bucket4j-core = { module = "com.github.vladimir-bukhtoyarov:bucket4j-core", version.ref = "bucket4j" }
 bucket4j-jcache = { module = "com.github.vladimir-bukhtoyarov:bucket4j-jcache", version.ref = "bucket4j" }
 
+# Resilience4j dependencies
+resilience4j-spring-boot3 = { module = "io.github.resilience4j:resilience4j-spring-boot3", version.ref = "resilience4j" }
+resilience4j-circuitbreaker = { module = "io.github.resilience4j:resilience4j-circuitbreaker", version.ref = "resilience4j" }
+resilience4j-retry = { module = "io.github.resilience4j:resilience4j-retry", version.ref = "resilience4j" }
+resilience4j-timelimiter = { module = "io.github.resilience4j:resilience4j-timelimiter", version.ref = "resilience4j" }
+
 [bundles]
 jwt = ["jjwt-api", "jjwt-impl", "jjwt-jackson"]
 testcontainers = ["testcontainers-core", "testcontainers-junit", "testcontainers-postgresql"]
 mapstruct = ["mapstruct"]
 bucket4j = ["bucket4j-core", "bucket4j-jcache"]
+resilience4j = ["resilience4j-spring-boot3", "resilience4j-circuitbreaker", "resilience4j-retry", "resilience4j-timelimiter"]
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

@@ -74,6 +74,9 @@ dependencies {
     // Rate limiting
     implementation(libs.bundles.bucket4j)
 
+    // Circuit breaker
+    implementation(libs.bundles.resilience4j)
+
     // MapStruct
     implementation(libs.bundles.mapstruct)
     annotationProcessor(libs.mapstruct.processor)

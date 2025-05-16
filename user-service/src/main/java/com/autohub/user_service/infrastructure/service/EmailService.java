@@ -1,6 +1,17 @@
 package com.autohub.user_service.infrastructure.service;
 
 import com.autohub.user_service.domain.entity.User;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.core.registry.EntryAddedEvent;
+import io.github.resilience4j.core.registry.EntryRemovedEvent;
+import io.github.resilience4j.core.registry.EntryReplacedEvent;
+import io.github.resilience4j.core.registry.RegistryEventConsumer;
+import jakarta.annotation.PostConstruct;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +33,36 @@ import java.util.Map;
 @Slf4j
 public class EmailService {
 
+    private static final String EMAIL_SERVICE_CIRCUIT_BREAKER = "emailServiceCircuitBreaker";
+
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+
+    private CircuitBreaker circuitBreaker;
 
     @Value("${app.mail.from}")
     private String fromEmail;
 
     @Value("${app.url}")
     private String appUrl;
+
+    /**
+     * Initialize the circuit breaker after properties are set
+     */
+    @PostConstruct
+    public void initCircuitBreaker() {
+        this.circuitBreaker = circuitBreakerRegistry.circuitBreaker(EMAIL_SERVICE_CIRCUIT_BREAKER);
+        log.info("Initialized circuit breaker for email service: {}", circuitBreaker.getName());
+
+        // Register event listeners for circuit breaker state changes
+        circuitBreaker.getEventPublisher()
+                .onStateTransition(event -> log.info("Circuit breaker '{}' state changed from {} to {}",
+                        circuitBreaker.getName(), event.getStateTransition().getFromState(),
+                        event.getStateTransition().getToState()))
+                .onError(event -> log.error("Circuit breaker '{}' recorded an error: {}",
+                        circuitBreaker.getName(), event.getThrowable().getMessage()));
+    }
 
     /**
      * Send verification email to newly registered user
@@ -116,6 +149,7 @@ public class EmailService {
 
     /**
      * Generic method to send an email using Thymeleaf templates
+     * This method uses a circuit breaker to handle failures gracefully
      *
      * @param to Email recipient
      * @param subject Email subject
@@ -123,6 +157,9 @@ public class EmailService {
      * @param variables Variables to pass to template
      */
     private void sendEmail(String to, String subject, String templateName, Map<String, Object> variables) {
+        // Create email parameters object outside try block for access in catch block
+        EmailParameters params = null;
+
         try {
             // Prepare the context with variables
             Context context = new Context();
@@ -131,25 +168,84 @@ public class EmailService {
             // Process the template
             String htmlContent = templateEngine.process(templateName, context);
 
-            // Create message
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(
-                    message,
-                    MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
-                    StandardCharsets.UTF_8.name()
-            );
+            // Create email parameters object to pass to the circuit breaker
+            params = new EmailParameters(to, subject, htmlContent);
+            final EmailParameters finalParams = params; // Final copy for lambda
 
-            helper.setTo(to);
-            helper.setFrom(fromEmail);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-
-            // Send email
-            mailSender.send(message);
-            log.info("Email sent to {} with subject '{}'", to, subject);
-
-        } catch (MessagingException e) {
+            // Execute the email sending with circuit breaker protection
+            circuitBreaker.executeSupplier(() -> {
+                try {
+                    return sendEmailWithCircuitBreaker(finalParams);
+                } catch (MessagingException e) {
+                    log.error("Circuit breaker caught exception while sending email to {}: {}", 
+                            to, e.getMessage());
+                    throw new RuntimeException("Failed to send email", e);
+                }
+            });
+        } catch (Exception e) {
             log.error("Failed to send email to {} with subject '{}': {}", to, subject, e.getMessage());
+            // Fallback when circuit breaker is open or execution fails
+            if (params != null) {
+                emailFallback(e, params);
+            }
+        }
+    }
+
+    /**
+     * Actual email sending logic, protected by circuit breaker
+     * 
+     * @param params Email parameters
+     * @return true if email was sent successfully
+     * @throws MessagingException if there was an error sending the email
+     */
+    private Boolean sendEmailWithCircuitBreaker(EmailParameters params) throws MessagingException {
+        // Create message
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(
+                message,
+                MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+                StandardCharsets.UTF_8.name()
+        );
+
+        helper.setTo(params.to);
+        helper.setFrom(fromEmail);
+        helper.setSubject(params.subject);
+        helper.setText(params.htmlContent, true);
+
+        // Send email
+        mailSender.send(message);
+        log.info("Email sent to {} with subject '{}'", params.to, params.subject);
+
+        return true;
+    }
+
+    /**
+     * Fallback method for when the circuit is open
+     * This is called automatically by the circuit breaker when the circuit is open
+     * 
+     * @param e The exception that caused the fallback
+     * @param params Email parameters
+     * @return false to indicate the email was not sent
+     */
+    private Boolean emailFallback(Exception e, EmailParameters params) {
+        log.warn("Circuit breaker is open! Email to {} with subject '{}' was not sent. Error: {}", 
+                params.to, params.subject, e.getMessage());
+        // Here you could implement alternative notification methods or queue the email for later
+        return false;
+    }
+
+    /**
+     * Simple class to hold email parameters
+     */
+    private static class EmailParameters {
+        private final String to;
+        private final String subject;
+        private final String htmlContent;
+
+        public EmailParameters(String to, String subject, String htmlContent) {
+            this.to = to;
+            this.subject = subject;
+            this.htmlContent = htmlContent;
         }
     }
 }
