@@ -80,6 +80,9 @@ dependencies {
     // Circuit breaker
     implementation(libs.bundles.resilience4j)
 
+    // TOTP for 2FA
+    implementation(libs.bundles.totp)
+
     // MapStruct
     implementation(libs.bundles.mapstruct)
     annotationProcessor(libs.mapstruct.processor)

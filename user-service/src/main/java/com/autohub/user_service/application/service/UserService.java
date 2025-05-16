@@ -3,6 +3,7 @@ package com.autohub.user_service.application.service;
 import com.autohub.user_service.domain.entity.RoleType;
 import com.autohub.user_service.domain.entity.User;
 import com.autohub.user_service.domain.entity.UserStatus;
+import com.autohub.user_service.presentation.dto.auth.TwoFactorSetupResponse;
 import com.autohub.user_service.presentation.dto.user.RegisterUserRequest;
 
 import java.util.Optional;
@@ -120,4 +121,40 @@ public interface UserService {
      * @param userId User's unique identifier
      */
     void recordLogin(UUID userId);
+
+    /**
+     * Initiates two-factor authentication setup for a user
+     *
+     * @param userId User's unique identifier
+     * @return Setup information including secret and QR code URI
+     */
+    TwoFactorSetupResponse initiateTwoFactorSetup(UUID userId);
+
+    /**
+     * Completes two-factor authentication setup for a user
+     *
+     * @param userId User's unique identifier
+     * @param secret The TOTP secret key
+     * @param code The verification code from the authenticator app
+     * @return true if setup was completed successfully
+     */
+    boolean completeTwoFactorSetup(UUID userId, String secret, String code);
+
+    /**
+     * Disables two-factor authentication for a user
+     *
+     * @param userId User's unique identifier
+     * @return true if 2FA was disabled successfully
+     */
+    boolean disableTwoFactorAuth(UUID userId);
+
+    /**
+     * Verifies a two-factor authentication code
+     *
+     * @param userId User's unique identifier
+     * @param code The verification code
+     * @param isBackupCode Whether this is a backup code
+     * @return true if the code is valid
+     */
+    boolean verifyTwoFactorCode(UUID userId, String code, boolean isBackupCode);
 }

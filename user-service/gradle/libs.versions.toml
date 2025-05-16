@@ -8,6 +8,9 @@ buildconfig = "3.1.0"
 # JWT
 jjwt = "0.11.5"
 
+# TOTP for 2FA
+aerogear-otp = "1.0.0"
+
 # Rate Limiting
 bucket4j = "7.6.0"
 
@@ -45,6 +48,9 @@ lombok-mapstruct-binding = { module = "org.projectlombok:lombok-mapstruct-bindin
 # Validation dependencies
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commons-validator" }
 
+# TOTP dependencies
+aerogear-otp = { module = "org.jboss.aerogear:aerogear-otp-java", version.ref = "aerogear-otp" }
+
 # Rate limiting dependencies
 bucket4j-core = { module = "com.github.vladimir-bukhtoyarov:bucket4j-core", version.ref = "bucket4j" }
 bucket4j-jcache = { module = "com.github.vladimir-bukhtoyarov:bucket4j-jcache", version.ref = "bucket4j" }
@@ -61,6 +67,7 @@ testcontainers = ["testcontainers-core", "testcontainers-junit", "testcontainers
 mapstruct = ["mapstruct"]
 bucket4j = ["bucket4j-core", "bucket4j-jcache"]
 resilience4j = ["resilience4j-spring-boot3", "resilience4j-circuitbreaker", "resilience4j-retry", "resilience4j-timelimiter"]
+totp = ["aerogear-otp"]
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }

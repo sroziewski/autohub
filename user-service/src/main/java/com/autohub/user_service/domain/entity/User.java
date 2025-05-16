@@ -37,6 +37,9 @@ public class User {
     private final Set<Role> roles;
     private final String oauthProvider;
     private final String oauthProviderId;
+    private final boolean twoFactorEnabled;
+    private final String twoFactorSecret;
+    private final List<String> backupCodes;
 
     /**
      * Creates a new user with default values
@@ -54,6 +57,8 @@ public class User {
                 .verificationToken(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now())
                 .roles(new HashSet<>())
+                .twoFactorEnabled(false)
+                .backupCodes(new ArrayList<>())
                 .build();
     }
 
@@ -79,6 +84,8 @@ public class User {
                 .roles(new HashSet<>())
                 .oauthProvider(oauthProvider)
                 .oauthProviderId(oauthProviderId)
+                .twoFactorEnabled(false)
+                .backupCodes(new ArrayList<>())
                 .build();
     }
 
@@ -391,5 +398,63 @@ public class User {
             roleNames.add(role.getRole().name());
         }
         return roleNames;
+    }
+
+    /**
+     * Enables two-factor authentication for the user
+     *
+     * @param secret The generated TOTP secret key
+     * @param backupCodes List of backup codes for account recovery
+     * @return A new user domain with 2FA enabled
+     */
+    public User enableTwoFactorAuth(String secret, List<String> backupCodes) {
+        if (twoFactorEnabled && Objects.equals(this.twoFactorSecret, secret)) {
+            return this;
+        }
+
+        return toBuilder()
+                .twoFactorEnabled(true)
+                .twoFactorSecret(secret)
+                .backupCodes(backupCodes)
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    /**
+     * Disables two-factor authentication for the user
+     *
+     * @return A new user domain with 2FA disabled
+     */
+    public User disableTwoFactorAuth() {
+        if (!twoFactorEnabled) {
+            return this;
+        }
+
+        return toBuilder()
+                .twoFactorEnabled(false)
+                .twoFactorSecret(null)
+                .backupCodes(new ArrayList<>())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    /**
+     * Checks if a backup code is valid and consumes it if it is
+     *
+     * @param code The backup code to validate
+     * @return A new user domain with the backup code removed if valid, or the same user if invalid
+     */
+    public User useBackupCode(String code) {
+        if (!twoFactorEnabled || backupCodes == null || !backupCodes.contains(code)) {
+            return this;
+        }
+
+        List<String> updatedBackupCodes = new ArrayList<>(backupCodes);
+        updatedBackupCodes.remove(code);
+
+        return toBuilder()
+                .backupCodes(updatedBackupCodes)
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 }

@@ -1,18 +1,21 @@
 package com.autohub.user_service.application.service.impl;
 
 import com.autohub.user_service.application.exception.ResourceNotFoundException;
+import com.autohub.user_service.application.service.TwoFactorAuthService;
 import com.autohub.user_service.application.service.UserService;
 import com.autohub.user_service.domain.entity.RoleType;
 import com.autohub.user_service.domain.entity.User;
 import com.autohub.user_service.domain.entity.UserStatus;
 import com.autohub.user_service.infrastructure.persistence.repository.UserRepositoryImpl;
 import com.autohub.user_service.infrastructure.service.EmailService;
+import com.autohub.user_service.presentation.dto.auth.TwoFactorSetupResponse;
 import com.autohub.user_service.presentation.dto.user.RegisterUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +29,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final UserRepositoryImpl userRepositoryImpl;
+    private final TwoFactorAuthService twoFactorAuthService;
 
     @Override
     @Transactional
@@ -234,5 +238,92 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = user.recordLogin();
         userRepositoryImpl.save(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public TwoFactorSetupResponse initiateTwoFactorSetup(UUID userId) {
+        User user = userRepositoryImpl.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("error.user.not_found"));
+
+        // Generate TOTP secret
+        String secret = twoFactorAuthService.generateTotpSecret();
+
+        // Generate QR code URI
+        String qrCodeUri = twoFactorAuthService.generateQrCodeUri(secret, user.getEmail(), "AutoHub");
+
+        // Generate backup codes
+        List<String> backupCodes = twoFactorAuthService.generateBackupCodes();
+
+        return TwoFactorSetupResponse.builder()
+                .secret(secret)
+                .qrCodeUri(qrCodeUri)
+                .backupCodes(backupCodes)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public boolean completeTwoFactorSetup(UUID userId, String secret, String code) {
+        User user = userRepositoryImpl.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("error.user.not_found"));
+
+        // Verify the code before enabling 2FA
+        if (!twoFactorAuthService.verifyTotp(secret, code)) {
+            return false;
+        }
+
+        // Generate backup codes
+        List<String> backupCodes = twoFactorAuthService.generateBackupCodes();
+
+        // Enable 2FA for the user
+        User updatedUser = user.enableTwoFactorAuth(secret, backupCodes);
+        userRepositoryImpl.save(updatedUser);
+
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean disableTwoFactorAuth(UUID userId) {
+        User user = userRepositoryImpl.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("error.user.not_found"));
+
+        // If 2FA is not enabled, return true (nothing to do)
+        if (!user.isTwoFactorEnabled()) {
+            return true;
+        }
+
+        // Disable 2FA for the user
+        User updatedUser = user.disableTwoFactorAuth();
+        userRepositoryImpl.save(updatedUser);
+
+        return true;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean verifyTwoFactorCode(UUID userId, String code, boolean isBackupCode) {
+        User user = userRepositoryImpl.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("error.user.not_found"));
+
+        // If 2FA is not enabled, return false
+        if (!user.isTwoFactorEnabled()) {
+            return false;
+        }
+
+        if (isBackupCode) {
+            // Check if the code is a valid backup code
+            if (user.getBackupCodes() != null && user.getBackupCodes().contains(code)) {
+                // If this is a real verification (not just checking), consume the backup code
+                User updatedUser = user.useBackupCode(code);
+                userRepositoryImpl.save(updatedUser);
+                return true;
+            }
+            return false;
+        } else {
+            // Verify TOTP code
+            return twoFactorAuthService.verifyTotp(user.getTwoFactorSecret(), code);
+        }
     }
 }
