@@ -71,6 +71,9 @@ dependencies {
     // Security and JWT
     implementation(libs.bundles.jwt)
 
+    // Rate limiting
+    implementation(libs.bundles.bucket4j)
+
     // MapStruct
     implementation(libs.bundles.mapstruct)
     annotationProcessor(libs.mapstruct.processor)
