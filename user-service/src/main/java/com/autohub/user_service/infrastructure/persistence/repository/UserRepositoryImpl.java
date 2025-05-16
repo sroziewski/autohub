@@ -2,9 +2,8 @@ package com.autohub.user_service.infrastructure.persistence.repository;
 
 import com.autohub.user_service.domain.entity.User;
 import com.autohub.user_service.domain.repository.UserRepository;
-import com.autohub.user_service.infrastructure.persistence.entity.UserEntity;
-import com.autohub.user_service.infrastructure.persistence.repository.jpa.UserJpaRepository;
 import com.autohub.user_service.infrastructure.persistence.mapper.UserPersistenceMapper;
+import com.autohub.user_service.infrastructure.persistence.repository.jpa.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
