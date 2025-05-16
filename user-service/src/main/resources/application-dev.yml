@@ -22,6 +22,16 @@ spring:
     schemas: autohub
     default-schema: autohub
     clean-disabled: false
+  mail:
+    host: localhost
+    port: 25
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
 application:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
@@ -32,3 +42,8 @@ logging:
     org.flywaydb: DEBUG
     org.springframework.security: DEBUG
     org.springframework.context.support: DEBUG
+
+app:
+  mail:
+    from: noreply@autohub.com
+  url: https://autohub.com

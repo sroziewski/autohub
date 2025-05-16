@@ -33,7 +33,7 @@ public class RoleEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RoleType role;
+    private RoleTypeEntity role;
 
     @Column(name = "assigned_at", nullable = false, updatable = false)
     private LocalDateTime assignedAt;

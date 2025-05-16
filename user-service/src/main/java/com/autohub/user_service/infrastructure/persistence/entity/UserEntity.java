@@ -40,7 +40,7 @@ public class UserEntity implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserStatus status;
+    private UserStatusEntity status;
 
     @Column(name = "first_name")
     private String firstName;
@@ -106,7 +106,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !UserStatus.BANNED.equals(status);
+        return !UserStatusEntity.BANNED.equals(status);
     }
 
     @Override
@@ -116,10 +116,10 @@ public class UserEntity implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserStatus.ACTIVE.equals(status);
+        return UserStatusEntity.ACTIVE.equals(status);
     }
 
-    public void addRole(RoleType roleType) {
+    public void addRole(RoleTypeEntity roleType) {
         RoleEntity role = new RoleEntity();
         role.setUser(this);
         role.setUserId(this.id);
@@ -128,11 +128,11 @@ public class UserEntity implements UserDetails {
         roles.add(role);
     }
 
-    public void removeRole(RoleType roleType) {
-        roles.removeIf(role -> role.getRole() == roleType);
+    public void removeRole(RoleTypeEntity roleTypeEntity) {
+        roles.removeIf(role -> role.getRole() == roleTypeEntity);
     }
 
-    public boolean hasRole(RoleType roleType) {
-        return roles.stream().anyMatch(role -> role.getRole() == roleType);
+    public boolean hasRole(RoleTypeEntity roleTypeEntity) {
+        return roles.stream().anyMatch(role -> role.getRole() == roleTypeEntity);
     }
 }

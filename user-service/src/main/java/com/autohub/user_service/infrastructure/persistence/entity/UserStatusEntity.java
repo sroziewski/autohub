@@ -1,6 +1,6 @@
 package com.autohub.user_service.infrastructure.persistence.entity;
 
-public enum UserStatus {
+public enum UserStatusEntity {
     ACTIVE,
     INACTIVE,
     BANNED

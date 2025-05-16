@@ -62,6 +62,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-quartz")
     implementation("org.springframework.boot:spring-boot-starter-mail")
 
+    // Thymeleaf for email templates
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+
     // Validation
     implementation(libs.commons.validator)
 
@@ -82,11 +85,16 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation(libs.bundles.testcontainers)
+    testImplementation("org.mockito:mockito-subclass:5.11.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.test {
+    jvmArgs = listOf("-XX:+EnableDynamicAgentLoading")
 }
 
 // Use properties from .env file for Flyway configuration

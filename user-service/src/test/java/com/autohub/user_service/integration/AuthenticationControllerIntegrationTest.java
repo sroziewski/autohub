@@ -1,9 +1,9 @@
 package com.autohub.user_service.integration;
 
-import com.autohub.user_service.infrastructure.persistence.entity.RoleType;
+import com.autohub.user_service.infrastructure.persistence.entity.RoleTypeEntity;
 import com.autohub.user_service.infrastructure.persistence.entity.UserEntity;
-import com.autohub.user_service.infrastructure.persistence.entity.UserStatus;
-import com.autohub.user_service.infrastructure.persistence.repository.UserRepository;
+import com.autohub.user_service.infrastructure.persistence.entity.UserStatusEntity;
+import com.autohub.user_service.infrastructure.persistence.repository.jpa.UserJpaRepository;
 import com.autohub.user_service.presentation.dto.auth.AuthenticationRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -55,7 +55,7 @@ public class AuthenticationControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private UserRepository userRepository;
+    private UserJpaRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     private UserEntity testUser;
@@ -101,9 +101,9 @@ public class AuthenticationControllerIntegrationTest {
         testUser.setId(UUID.randomUUID());
         testUser.setEmail(TEST_EMAIL);
         testUser.setPassword(passwordEncoder.encode(TEST_PASSWORD));
-        testUser.setStatus(UserStatus.ACTIVE);
+        testUser.setStatus(UserStatusEntity.ACTIVE);
         testUser.setVerified(true);
-        testUser.addRole(RoleType.USER);
+        testUser.addRole(RoleTypeEntity.USER);
 
         testUser = userRepository.saveAndFlush(testUser);
     }
@@ -154,7 +154,7 @@ public class AuthenticationControllerIntegrationTest {
     @Test
     public void loginWithInactiveUser_ShouldReturnUnauthorized() throws Exception {
         // Given - Update user to inactive
-        testUser.setStatus(UserStatus.INACTIVE);
+        testUser.setStatus(UserStatusEntity.INACTIVE);
         userRepository.save(testUser);
 
         AuthenticationRequest request = new AuthenticationRequest(TEST_EMAIL, TEST_PASSWORD);
@@ -169,7 +169,7 @@ public class AuthenticationControllerIntegrationTest {
     @Test
     public void loginWithBannedUser_ShouldReturnUnauthorized() throws Exception {
         // Given - Update user to banned
-        testUser.setStatus(UserStatus.BANNED);
+        testUser.setStatus(UserStatusEntity.BANNED);
         userRepository.save(testUser);
 
         AuthenticationRequest request = new AuthenticationRequest(TEST_EMAIL, TEST_PASSWORD);
