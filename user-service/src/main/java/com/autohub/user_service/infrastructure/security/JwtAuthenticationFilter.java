@@ -38,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith(jwtProperties.getTokenPrefix())) {
             jwt = authorizationHeader.substring(jwtProperties.getTokenPrefix().length());
             try {
+                // Extract username first to check if we need to load user details
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
                 logger.error("jwt.token.error");
@@ -45,8 +46,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // Only load user details if we have a username and no authentication
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
+            // Validate token - this will use the cached validation result if available
             if (jwtUtil.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());

@@ -16,4 +16,10 @@ public class JwtProperties {
     private String headerName = "Authorization";
     private String redirectUri = "http://localhost:3000/oauth2/redirect";
 
+    /**
+     * Interval in milliseconds for cleaning up expired tokens from the cache.
+     * Default is 1 hour (3600000 ms).
+     */
+    private long cacheCleanupInterval = 3600000;
+
 }
