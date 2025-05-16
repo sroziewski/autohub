@@ -14,5 +14,6 @@ public class JwtProperties {
     private long tokenValidityInSeconds;
     private String tokenPrefix = "Bearer ";
     private String headerName = "Authorization";
+    private String redirectUri = "http://localhost:3000/oauth2/redirect";
 
 }

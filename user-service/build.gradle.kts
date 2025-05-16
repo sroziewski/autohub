@@ -71,6 +71,9 @@ dependencies {
     // Security and JWT
     implementation(libs.bundles.jwt)
 
+    // OAuth2 for social login
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+
     // Rate limiting
     implementation(libs.bundles.bucket4j)
 

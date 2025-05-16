@@ -35,6 +35,8 @@ public class User {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final Set<Role> roles;
+    private final String oauthProvider;
+    private final String oauthProviderId;
 
     /**
      * Creates a new user with default values
@@ -52,6 +54,31 @@ public class User {
                 .verificationToken(UUID.randomUUID().toString())
                 .createdAt(LocalDateTime.now())
                 .roles(new HashSet<>())
+                .build();
+    }
+
+    /**
+     * Creates a new user from OAuth2 authentication
+     *
+     * @param email           User's email
+     * @param firstName       User's first name (if available)
+     * @param lastName        User's last name (if available)
+     * @param oauthProvider   OAuth2 provider name (e.g., "google", "facebook")
+     * @param oauthProviderId User's ID with the OAuth2 provider
+     * @return A new user domain object
+     */
+    public static User createFromOAuth2(String email, String firstName, String lastName, 
+                                       String oauthProvider, String oauthProviderId) {
+        return User.builder()
+                .email(email)
+                .firstName(firstName)
+                .lastName(lastName)
+                .status(UserStatus.ACTIVE) // OAuth2 users are automatically active
+                .verified(true) // OAuth2 users are automatically verified
+                .createdAt(LocalDateTime.now())
+                .roles(new HashSet<>())
+                .oauthProvider(oauthProvider)
+                .oauthProviderId(oauthProviderId)
                 .build();
     }
 

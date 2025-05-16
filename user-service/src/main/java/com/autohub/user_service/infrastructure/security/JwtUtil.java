@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -55,6 +56,15 @@ public class JwtUtil {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userDetails.getUsername());
+    }
+
+    public String generateToken(OAuth2User oauth2User) {
+        Map<String, Object> claims = new HashMap<>();
+        String email = oauth2User.getAttribute("email");
+        if (email == null) {
+            throw new IllegalArgumentException("OAuth2 user must have an email attribute");
+        }
+        return createToken(claims, email);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
