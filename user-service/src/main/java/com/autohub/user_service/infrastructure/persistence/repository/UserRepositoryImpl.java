@@ -5,6 +5,8 @@ import com.autohub.user_service.domain.repository.UserRepository;
 import com.autohub.user_service.infrastructure.persistence.mapper.UserPersistenceMapper;
 import com.autohub.user_service.infrastructure.persistence.repository.jpa.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -49,5 +51,10 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public boolean existsByEmail(String email) {
         return userJpaRepository.existsByEmail(email);
+    }
+
+    public Page<User> findAll(Pageable pageable) {
+        return userJpaRepository.findAll(pageable)
+                .map(mapper::toDomain);
     }
 }

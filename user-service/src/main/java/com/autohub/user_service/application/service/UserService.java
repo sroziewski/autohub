@@ -5,6 +5,8 @@ import com.autohub.user_service.domain.entity.User;
 import com.autohub.user_service.domain.entity.UserStatus;
 import com.autohub.user_service.presentation.dto.auth.TwoFactorSetupResponse;
 import com.autohub.user_service.presentation.dto.user.RegisterUserRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -173,4 +175,6 @@ public interface UserService {
      * @return true if the account is locked
      */
     boolean isAccountLocked(String email);
+
+    Page<User> findAllUsers(Pageable pageable);
 }

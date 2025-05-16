@@ -11,6 +11,8 @@ import com.autohub.user_service.infrastructure.service.EmailService;
 import com.autohub.user_service.presentation.dto.auth.TwoFactorSetupResponse;
 import com.autohub.user_service.presentation.dto.user.RegisterUserRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -348,5 +350,11 @@ public class UserServiceImpl implements UserService {
         return userRepositoryImpl.findByEmail(email)
                 .map(User::isAccountLocked)
                 .orElse(false);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> findAllUsers(Pageable pageable) {
+        return userRepositoryImpl.findAll(pageable);
     }
 }
