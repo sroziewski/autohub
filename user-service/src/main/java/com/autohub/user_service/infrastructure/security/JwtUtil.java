@@ -15,6 +15,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -54,7 +55,7 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
 
-    private Claims extractAllClaims(String token) {
+    public Claims extractAllClaims(String token) {
         // Use the cached parser instead of creating a new one each time
         return jwtParser.parseClaimsJws(token).getBody();
     }
@@ -68,8 +69,38 @@ public class JwtUtil {
         return createToken(claims, userDetails.getUsername());
     }
 
+    /**
+     * Generate a token with a session ID
+     *
+     * @param userDetails User details
+     * @param sessionId Session ID to include in the token
+     * @return JWT token
+     */
+    public String generateTokenWithSessionId(UserDetails userDetails, UUID sessionId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sessionId", sessionId.toString());
+        return createToken(claims, userDetails.getUsername());
+    }
+
     public String generateToken(OAuth2User oauth2User) {
         Map<String, Object> claims = new HashMap<>();
+        String email = oauth2User.getAttribute("email");
+        if (email == null) {
+            throw new IllegalArgumentException("OAuth2 user must have an email attribute");
+        }
+        return createToken(claims, email);
+    }
+
+    /**
+     * Generate a token with a session ID for OAuth2 user
+     *
+     * @param oauth2User OAuth2 user
+     * @param sessionId Session ID to include in the token
+     * @return JWT token
+     */
+    public String generateTokenWithSessionId(OAuth2User oauth2User, UUID sessionId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("sessionId", sessionId.toString());
         String email = oauth2User.getAttribute("email");
         if (email == null) {
             throw new IllegalArgumentException("OAuth2 user must have an email attribute");
